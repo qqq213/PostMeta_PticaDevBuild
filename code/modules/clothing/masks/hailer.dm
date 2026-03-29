@@ -40,7 +40,7 @@ GLOBAL_LIST_INIT(hailer_phrases, list(
 	/datum/hailer_phrase/shutup,
 	/datum/hailer_phrase/super,
 	/datum/hailer_phrase/dredd,
-	/datum/hailer_phrase/ubludok // MASSMETA ADD (ru_hailer)
+	/datum/hailer_phrase/ubludok // MASSMETA ADD (april_fools_day)
 ))
 
 /obj/item/clothing/mask/gas/sechailer
@@ -166,7 +166,7 @@ GLOBAL_LIST_INIT(hailer_phrases, list(
 
 /obj/item/clothing/mask/gas/sechailer/proc/select_phrase()
 	if(!safety)
-		return pick(EMAG_PHRASE, 20) // MASSMETA EDIT (ru_hailer) Original: //return EMAG_PHRASE
+		return pick(EMAG_PHRASE, 20) // MASSMETA EDIT (april_fools_day) Original: //return EMAG_PHRASE
 	else
 		var/upper_limit
 		switch (aggressiveness)
@@ -185,7 +185,7 @@ GLOBAL_LIST_INIT(hailer_phrases, list(
 	user.audible_message("[user]'s Compli-o-Nator: <font color='red' size='4'><b>[initial(phrase.phrase_text)]</b></font>")
 	// MASSMETA EDIT BEGIN (ru_hailer)
 	if (phrase.phrase_sound == "ubludok")
-		playsound(src, "modular_meta/tweaks/russian_translation/ru_hailer/sounds/ubludok_short.ogg", 100, FALSE, 4)
+		playsound(src, "modular_meta/modules/april_fools_day/beepsky/sounds/ubludok_short.ogg", 100, FALSE, 4)
 		return TRUE
 	// MASSMETA EDIT END
 	playsound(src, "sound/runtime/complionator/[initial(phrase.phrase_sound)].ogg", 100, FALSE, 4)

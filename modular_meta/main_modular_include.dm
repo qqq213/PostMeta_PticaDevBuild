@@ -13,6 +13,7 @@
 #include "features\admin\includes.dm"
 #include "features\ai_things\includes.dm"
 #include "features\antagonists\includes.dm"
+#include "features\april_fools_day\includes.dm"
 #include "features\butt_farts\includes.dm"
 #include "features\cheburek_car\includes.dm"
 #include "features\more_clothes\includes.dm"

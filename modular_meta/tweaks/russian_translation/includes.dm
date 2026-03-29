@@ -5,8 +5,6 @@
 #include "ru_ai_laws\code\supplied.dm"
 #include "ru_ai_laws\code\zeroth.dm"
 #include "ru_crayons\code\crayon.dm"
-#include "ru_hailer\code\hailer_phrase.dm"
-#include "ru_hailer\code\secbot.dm"
 #include "ru_pets_commands\code\basic_commands.dm"
 #include "ru_pets_commands\code\bots_commands.dm"
 #include "ru_pets_commands\code\creatures_commands.dm"
