@@ -50314,7 +50314,6 @@
 /obj/effect/turf_decal/tile/purple/half/contrasted{
 	dir = 8
 	},
-/obj/machinery/bluespace_vendor/directional/west,
 /obj/machinery/vending/mod_modules,
 /turf/open/floor/iron,
 /area/station/hallway/primary/starboard)
