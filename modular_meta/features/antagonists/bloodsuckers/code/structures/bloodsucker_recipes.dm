@@ -133,6 +133,7 @@
 	)
 	time = 6 SECONDS
 	category = CAT_WEAPON_MELEE
+	crafting_flags = CRAFT_SKIP_MATERIALS_PARITY
 
 /datum/crafting_recipe/silver_stake
 	name = "Silver Stake"
