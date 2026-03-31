@@ -19,8 +19,7 @@ GLOBAL_ALIST_INIT(metacoin_achievement_reward_overrides, alist(
 	/datum/award/achievement/misc/selfouch = METACOIN_AWARD_NONE, //so noone abuse it
 
 	// 1 metacoin
-	/datum/award/score/maintenance_pill = METACOIN_AWARD_ONE_POINT,
-	/datum/award/score/progress/fish = METACOIN_AWARD_ONE_POINT,
+
 
 	// 5 metacoins
 	/datum/award/achievement/mafia = METACOIN_AWARD_CLOSE_TO_NOTHING,
@@ -48,6 +47,8 @@ GLOBAL_ALIST_INIT(metacoin_achievement_reward_overrides, alist(
 	/datum/award/score/intento_score = METACOIN_AWARD_NONE, // That's getting abused 100%
 	/datum/award/score/chef_tourist_score = METACOIN_AWARD_CLOSE_TO_NOTHING,
 	/datum/award/score/style_score = METACOIN_AWARD_CLOSE_TO_NOTHING,
+	/datum/award/score/maintenance_pill = METACOIN_AWARD_ONE_POINT,
+	/datum/award/score/progress/fish = METACOIN_AWARD_ONE_POINT,
 ))
 
 GLOBAL_DATUM(metacoins_controller, /datum/metacoins_controller)
