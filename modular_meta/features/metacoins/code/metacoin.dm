@@ -5,7 +5,6 @@
 #define METACOIN_IMPORTANT_JOBS list(JOB_SHAFT_MINER, JOB_CAPTAIN, JOB_HEAD_OF_PERSONNEL, JOB_HEAD_OF_SECURITY, JOB_RESEARCH_DIRECTOR, JOB_SECURITY_OFFICER_SUPPLY, JOB_SECURITY_OFFICER_SCIENCE, JOB_SECURITY_OFFICER_ENGINEERING, JOB_WARDEN, JOB_SECURITY_OFFICER, JOB_CHIEF_MEDICAL_OFFICER, JOB_DETECTIVE, JOB_CHIEF_ENGINEER ) // THIS SHALL BE IN CONFIG, BUT I'M VERY LAZY, OKAY?
 #define METACOIN_ICON_PATH "icons/obj/economy.dmi"
 #define METACOIN_ICON_STATE "coin_tails" // someone get us a nice lil' carp_coin sprite, or "masscoin"
-//metacoin awards, right now only used in achievements.
 #define METACOIN_AWARD_NONE 0
 #define METACOIN_AWARD_ONE_POINT 1
 #define METACOIN_AWARD_CLOSE_TO_NOTHING 5
@@ -16,20 +15,40 @@
 
 //Custom rewards list, if you want to, let's say, award more metacoins for specific achievements.
 GLOBAL_ALIST_INIT(metacoin_achievement_reward_overrides, alist(
+	// 0 metacoins
 	/datum/award/achievement/misc/selfouch = METACOIN_AWARD_NONE, //so noone abuse it
-	/datum/award/achievement/misc/sisyphus = METACOIN_AWARD_MED,
-	/datum/award/achievement/misc/grand_ritual_finale = METACOIN_AWARD_BIG, //you anyways don't get it, noob
-	/datum/award/achievement/misc/pulse = METACOIN_AWARD_HUGE, //i just hit the jackpooot
+
+	// 1 metacoin
+
+
+	// 5 metacoins
+	/datum/award/achievement/mafia = METACOIN_AWARD_CLOSE_TO_NOTHING,
+
+	// 50 metacoins
 	/datum/award/achievement/misc = METACOIN_AWARD_SMALL,
 	/datum/award/achievement/jobs = METACOIN_AWARD_SMALL,
-	/datum/award/achievement/jobs/theoretical_limits = METACOIN_AWARD_MED,
-	/datum/award/achievement/jobs/service_good = METACOIN_AWARD_MED, //we're actually need some kind of service-players
-	/datum/award/achievement/mafia = METACOIN_AWARD_CLOSE_TO_NOTHING,
 	/datum/award/achievement/mafia/universally_hated = METACOIN_AWARD_SMALL, //you pretty good, so get your 110 points in total
 	/datum/award/achievement/boss = METACOIN_AWARD_SMALL,
 	/datum/award/achievement/skill = METACOIN_AWARD_SMALL,
+
+	// 150 metacoins
+	/datum/award/achievement/misc/sisyphus = METACOIN_AWARD_MED,
+	/datum/award/achievement/jobs/theoretical_limits = METACOIN_AWARD_MED,
+	/datum/award/achievement/jobs/service_good = METACOIN_AWARD_MED, //we're actually need some kind of service-players
+
+	// 250 metacoins
+	/datum/award/achievement/misc/grand_ritual_finale = METACOIN_AWARD_BIG, //you anyways don't get it, noob
+
+	// 500 metacoins
+	/datum/award/achievement/misc/pulse = METACOIN_AWARD_HUGE, //i just hit the jackpooot.
+
+	// Scores
 	/datum/award/score/hardcore_random = METACOIN_AWARD_CLOSE_TO_NOTHING, //5 more points for random character it's fair
+	/datum/award/score/intento_score = METACOIN_AWARD_NONE, // That's getting abused 100%
+	/datum/award/score/chef_tourist_score = METACOIN_AWARD_CLOSE_TO_NOTHING,
+	/datum/award/score/style_score = METACOIN_AWARD_CLOSE_TO_NOTHING,
 	/datum/award/score/maintenance_pill = METACOIN_AWARD_ONE_POINT,
+	/datum/award/score/progress/fish = METACOIN_AWARD_ONE_POINT,
 ))
 
 GLOBAL_DATUM(metacoins_controller, /datum/metacoins_controller)
@@ -105,21 +124,34 @@ GLOBAL_DATUM(metacoins_controller, /datum/metacoins_controller)
 			award_metacoins(player_ckey, important_role_reward, "social_role", "Highly Important Role")
 		if(antag_greentext_reward > 0 && is_antag_greentext(player_ckey))
 			award_metacoins(player_ckey, antag_greentext_reward, "antag_greentext", "Antagonist Greentext")
-
-/datum/metacoins_controller/proc/award_metacoins(target_ckey, amount, source, reason)
-	amount = get_reward_amount(amount)
+/// Main proc for your awards. Integrate it wherever you like to
+///
+/// Arguments:
+/// * target_ckey - Player ckey that receives metacoins.
+/// * reward_value - Direct amount, or an award typepath when resolve_from_award_type is TRUE.
+/// * source - Source key for round log entries and per-round dedupe checks.
+/// * reason - reason shown in reward chat message.
+/// * allow_repeat - If TRUE, skips source dedupe and allows payout on every call.
+/// * resolve_from_award_type - If TRUE, reward_value is resolved through reward overrides/default.
+///
+/// Returns TRUE when payout is persisted, FALSE otherwise.
+/datum/metacoins_controller/proc/award_metacoins(target_ckey, reward_value, source, reason, allow_repeat = FALSE, resolve_from_award_type = FALSE)
+	var/amount = resolve_from_award_type ? get_achievement_reward(reward_value) : get_reward_amount(reward_value)
 	if(!target_ckey || amount <= 0)
 		return FALSE
 
 	var/sanitized_source = source || "unknown"
+	var/sanitized_reason = reason || "Reward"
 
-	var/list/source_awards = awarded_sources_by_ckey[target_ckey]
-	if(!islist(source_awards))
-		source_awards = list()
-		awarded_sources_by_ckey[target_ckey] = source_awards
+	var/list/source_awards
+	if(!allow_repeat)
+		source_awards = awarded_sources_by_ckey[target_ckey]
+		if(!islist(source_awards))
+			source_awards = list()
+			awarded_sources_by_ckey[target_ckey] = source_awards
 
-	if(source_awards[sanitized_source])
-		return FALSE
+		if(source_awards[sanitized_source])
+			return FALSE
 
 	if(!SSdbcore.Connect())
 		return FALSE
@@ -127,14 +159,17 @@ GLOBAL_DATUM(metacoins_controller, /datum/metacoins_controller)
 	if(!add_metacoins(target_ckey, amount))
 		return FALSE
 
-	source_awards[sanitized_source] = TRUE
+	if(!allow_repeat)
+		source_awards[sanitized_source] = TRUE
 
-	add_round_award_log_entry(target_ckey, amount, sanitized_source, reason)
+	log_game("[src] metacoin payout: ckey=[target_ckey], amount=[amount], source='[sanitized_source]', reason='[sanitized_reason]', allow_repeat=[allow_repeat], by_award_type=[resolve_from_award_type].")
+
+	add_round_award_log_entry(target_ckey, amount, sanitized_source, sanitized_reason)
 
 	var/list/reward_entries = list(list(
 		"amount" = amount,
 		"source" = sanitized_source,
-		"reason" = reason || "Reward",
+		"reason" = sanitized_reason,
 	))
 	notify_player_reward_awarded(target_ckey, amount, reward_entries)
 
@@ -157,19 +192,6 @@ GLOBAL_DATUM(metacoins_controller, /datum/metacoins_controller)
 		return get_reward_amount(METACOIN_AWARD_SMALL)
 
 	return get_reward_amount(custom_reward)
-
-/datum/metacoins_controller/proc/award_achievement_metacoins(target_ckey, achievement_type, achievement_name)
-	if(!target_ckey || !achievement_type)
-		return FALSE
-
-	var/reward_amount = get_achievement_reward(achievement_type)
-	if(reward_amount <= 0)
-		return FALSE
-
-	var/achievement_type_string = "[achievement_type]"
-	var/reward_source = "achievement:[achievement_type_string]"
-	var/reward_reason = "Achievement: [achievement_name || achievement_type_string]"
-	return award_metacoins(target_ckey, reward_amount, reward_source, reward_reason)
 
 /datum/metacoins_controller/proc/is_roundstart_ready(target_ckey)
 	if(!target_ckey)
@@ -401,6 +423,55 @@ GLOBAL_DATUM(metacoins_controller, /datum/metacoins_controller)
 
 	qdel(select_query)
 	return metacoin_balance
+
+ADMIN_VERB(mc_give, R_ADMIN, "Grant Metacoins", "Grant metacoins to a target ckey.", ADMIN_CATEGORY_GAME)
+	var/target_ckey = ckey(input(user, "Target ckey to receive metacoins", "Grant Metacoins", "") as text|null)
+	if(!target_ckey)
+		return
+
+	var/amount = tgui_input_number(user, "Metacoin amount to grant", "Grant Metacoins", 1, 1000, 1)
+	if(isnull(amount))
+		return
+
+	amount = round(amount)
+	if(amount <= 0)
+		to_chat(user, span_warning("Amount must be greater than zero."), confidential = TRUE)
+		return
+
+	var/grant_reason = input(user, "Reason shown in logs and player message", "Grant Metacoins", "") as text|null
+	if(isnull(grant_reason))
+		return
+
+	grant_reason = trim(grant_reason)
+	if(!length(grant_reason))
+		grant_reason = "Manual admin grant"
+
+	var/create_note = tgui_alert(user, "Include a note?", "Grant Metacoins", list("No", "Yes")) == "Yes"
+
+	var/datum/metacoins_controller/controller = get_metacoins_controller()
+	if(!controller)
+		to_chat(user, span_warning("Metacoin controller is unavailable."), confidential = TRUE)
+		return
+
+	var/reward_source = "admin_manual_grant:[user.ckey]"
+	var/reward_reason = "Admin grant: [grant_reason]"
+	var/success = controller.award_metacoins(target_ckey, amount, reward_source, reward_reason, TRUE)
+
+	if(!success)
+		var/fail_msg = "[key_name_admin(user)] failed to grant [amount] metacoins to [target_ckey]. Reason='[grant_reason]'."
+		message_admins(fail_msg)
+		log_admin("[key_name(user)] failed to grant [amount] metacoins to [target_ckey]. Reason='[grant_reason]'.")
+		to_chat(user, span_warning("Failed to grant metacoins. Check SQL logs"), confidential = TRUE)
+		return
+
+	if(create_note)
+		var/note_text = "Metacoins granted: +[amount]. Reason: [grant_reason]"
+		create_message("note", target_ckey, user.ckey, note_text, null, null, 0, 0, null, 0, "none")
+
+	var/admin_msg = "[key_name_admin(user)] granted [amount] metacoins to [target_ckey]. Reason='[grant_reason]'. Auto-note=[create_note ? "yes" : "no"]."
+	message_admins(admin_msg)
+	log_admin("[key_name(user)] granted [amount] metacoins to [target_ckey]. Reason='[grant_reason]'. Auto-note=[create_note ? "yes" : "no"].")
+	log_game("[key_name(user)] granted [amount] metacoins to [target_ckey]. Reason='[grant_reason]'. Auto-note=[create_note ? "yes" : "no"].")
 
 /client/verb/view_metacoins()
 	set name = "View Metacoins"

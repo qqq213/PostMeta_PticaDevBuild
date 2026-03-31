@@ -699,10 +699,11 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 
 	antag_token_pending_by_ckey[target_ckey] = role_id
 	antag_token_slots_left = max(antag_token_slots_left - 1, 0)
+	var/role_name = get_antag_token_role_display_name(role_id)
+	log_game("[src] antag token purchase: ckey=[target_ckey], role=[role_id]/[role_name], price=[listing.price], balance_before=[current_balance], balance_after=[new_balance], slots_left=[antag_token_slots_left].")
 
 	var/mob/player_mob = get_mob_by_ckey(target_ckey)
 	if(player_mob)
-		var/role_name = get_antag_token_role_display_name(role_id)
 		to_chat(player_mob, span_boldnicegreen("Purchased Antag Token ([role_name]) for [listing.price] metacoins. It will be applied at roundstart."))
 		player_mob.playsound_local(player_mob, 'sound/effects/kaching.ogg', 40, TRUE, use_reverb = FALSE)
 		SStgui.update_user_uis(player_mob)
