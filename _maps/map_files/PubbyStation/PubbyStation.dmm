@@ -8981,14 +8981,15 @@
 /area/station/hallway/primary/central/fore)
 "aHp" = (
 /obj/machinery/door/airlock{
-	id_tag = "Toilet1";
-    name = "Unit 1"
+	name = "Unit 1";
+	id_tag = "Toilet1"
 	},
 /turf/open/floor/iron/freezer,
 /area/station/commons/toilet/restrooms)
 "aHq" = (
 /obj/machinery/door/airlock{
-	name = "Unit 2"
+	name = "Unit 2";
+	id_tag = "Toilet2"
 	},
 /turf/open/floor/iron/freezer{
 	id_tag = "Toilet2"
