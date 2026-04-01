@@ -79,7 +79,7 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 			"listing_name" = "antag_token",
 			"listing_display_name" = "Antag Token",
 			"listing_display_desc" = "Guarantees one chosen antagonist role at roundstart.",
-			"listing_price" = 500,
+			"listing_price" = 1250, // cry about it
 			"listing_typepath" = /obj/item/coin/antagtoken, // to get the display icon of ours
 			"listing_kind" = "antag_token",
 		),
