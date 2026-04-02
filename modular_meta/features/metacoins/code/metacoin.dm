@@ -43,12 +43,36 @@ GLOBAL_ALIST_INIT(metacoin_achievement_reward_overrides, alist(
 	/datum/award/achievement/misc/pulse = METACOIN_AWARD_HUGE, //i just hit the jackpooot.
 
 	// Scores
+
+	// 0 metacoins
+
 	/datum/award/score = METACOIN_AWARD_NONE, // yeah
-	/datum/award/score/hardcore_random = METACOIN_AWARD_CLOSE_TO_NOTHING, //5 more points for random character it's fair
-	/datum/award/score/chef_tourist_score = METACOIN_AWARD_CLOSE_TO_NOTHING,
-	/datum/award/score/style_score = METACOIN_AWARD_CLOSE_TO_NOTHING,
+	/datum/award/score/achievements_score = METACOIN_AWARD_NONE, //justin cause
+	/datum/award/score/progress = METACOIN_AWARD_NONE,
+
+	// 1 metacoin (temporary)
+	/datum/award/score/blood_miner_score = METACOIN_AWARD_ONE_POINT,
+	/datum/award/score/boss_score = METACOIN_AWARD_ONE_POINT,
+	/datum/award/score/bubblegum_score = METACOIN_AWARD_ONE_POINT,
+	/datum/award/score/colussus_score = METACOIN_AWARD_ONE_POINT,
+	/datum/award/score/demonic_miner_score = METACOIN_AWARD_ONE_POINT,
+	/datum/award/score/drake_score = METACOIN_AWARD_ONE_POINT,
+	/datum/award/score/hierophant_score = METACOIN_AWARD_ONE_POINT,
+	/datum/award/score/legion_score = METACOIN_AWARD_ONE_POINT,
 	/datum/award/score/maintenance_pill = METACOIN_AWARD_ONE_POINT,
 	/datum/award/score/progress/fish = METACOIN_AWARD_ONE_POINT,
+	/datum/award/score/progress/pda_themes = METACOIN_AWARD_ONE_POINT,
+	/datum/award/score/swarmer_beacon_score = METACOIN_AWARD_ONE_POINT,
+	/datum/award/score/tendril_score = METACOIN_AWARD_ONE_POINT,
+	/datum/award/score/thething_score = METACOIN_AWARD_ONE_POINT,
+	/datum/award/score/wendigo_score = METACOIN_AWARD_ONE_POINT,
+
+	// 5 metacoins
+	/datum/award/score/bartender_tourist_score = METACOIN_AWARD_CLOSE_TO_NOTHING,
+	/datum/award/score/chef_tourist_score = METACOIN_AWARD_CLOSE_TO_NOTHING,
+	/datum/award/score/hardcore_random = METACOIN_AWARD_CLOSE_TO_NOTHING, //5 more points for random character it's fair
+	/datum/award/score/intento_score = METACOIN_AWARD_CLOSE_TO_NOTHING,
+	/datum/award/score/style_score = METACOIN_AWARD_CLOSE_TO_NOTHING,
 ))
 
 GLOBAL_DATUM(metacoins_controller, /datum/metacoins_controller)
