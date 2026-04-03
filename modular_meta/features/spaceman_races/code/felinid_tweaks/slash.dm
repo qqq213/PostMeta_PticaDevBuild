@@ -25,9 +25,9 @@
 
 /datum/wound/slash/flesh/proc/disease_chance(mob/living/target)
 	if(isfelinid(target))
-		return 15 // all cats are friends - they're immune
+		return 40 // all cats are friends - they're immune
 	if(ishumanbasic(target))
-		return 45 // humans are friends!! :3 - and they're very simillar to us, thus you get lower chance
+		return 65 // humans are friends!! :3 - and they're very simillar to us, thus you get lower chance
 	return 80 // other races suck, duh!! you get disease!
 // now properly infects the [victim] instead of the [user] felinid
 /datum/wound/slash/flesh/lick_wounds(mob/living/user)
