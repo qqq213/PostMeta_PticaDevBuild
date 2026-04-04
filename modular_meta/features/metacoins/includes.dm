@@ -1,3 +1,4 @@
+#include "code\metacoin_deathmatch.dm"
 #include "code\metacoin.dm"
 #include "code\metacoin_shop.dm"
 #include "code\metacoin_gambling.dm"
