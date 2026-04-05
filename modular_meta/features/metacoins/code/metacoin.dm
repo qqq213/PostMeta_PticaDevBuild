@@ -1,3 +1,4 @@
+// Set these to zero's to disable them completely
 #define METACOIN_REWARD_ROUNDSTART_READY 10
 #define METACOIN_REWARD_SURVIVE_EVAC 25
 #define METACOIN_REWARD_IMPORTANT_JOBS 50
@@ -5,51 +6,6 @@
 #define METACOIN_IMPORTANT_JOBS list(JOB_SHAFT_MINER, JOB_CAPTAIN, JOB_HEAD_OF_PERSONNEL, JOB_HEAD_OF_SECURITY, JOB_RESEARCH_DIRECTOR, JOB_SECURITY_OFFICER_SUPPLY, JOB_SECURITY_OFFICER_SCIENCE, JOB_SECURITY_OFFICER_ENGINEERING, JOB_WARDEN, JOB_SECURITY_OFFICER, JOB_CHIEF_MEDICAL_OFFICER, JOB_DETECTIVE, JOB_CHIEF_ENGINEER ) // THIS SHALL BE IN CONFIG, BUT I'M VERY LAZY, OKAY?
 #define METACOIN_ICON_PATH "icons/obj/economy.dmi"
 #define METACOIN_ICON_STATE "coin_tails" // someone get us a nice lil' carp_coin sprite, or "masscoin"
-#define METACOIN_AWARD_NONE 0
-#define METACOIN_AWARD_ONE_POINT 1
-#define METACOIN_AWARD_CLOSE_TO_NOTHING 5
-#define METACOIN_AWARD_SMALL 50
-#define METACOIN_AWARD_MED 150
-#define METACOIN_AWARD_BIG 250
-#define METACOIN_AWARD_HUGE 500 // economics here kinda suck actually
-
-//Custom rewards list, if you want to, let's say, award more metacoins for specific achievements.
-GLOBAL_ALIST_INIT(metacoin_achievement_reward_overrides, alist(
-	// 0 metacoins
-	/datum/award/achievement/misc/selfouch = METACOIN_AWARD_NONE, //so noone abuse it
-
-	// 1 metacoin
-
-
-	// 5 metacoins
-	/datum/award/achievement/mafia = METACOIN_AWARD_CLOSE_TO_NOTHING,
-
-	// 50 metacoins
-	/datum/award/achievement/misc = METACOIN_AWARD_SMALL,
-	/datum/award/achievement/jobs = METACOIN_AWARD_SMALL,
-	/datum/award/achievement/mafia/universally_hated = METACOIN_AWARD_SMALL, //you pretty good, so get your 110 points in total
-	/datum/award/achievement/boss = METACOIN_AWARD_SMALL,
-	/datum/award/achievement/skill = METACOIN_AWARD_SMALL,
-
-	// 150 metacoins
-	/datum/award/achievement/misc/sisyphus = METACOIN_AWARD_MED,
-	/datum/award/achievement/jobs/theoretical_limits = METACOIN_AWARD_MED,
-	/datum/award/achievement/jobs/service_good = METACOIN_AWARD_MED, //we're actually need some kind of service-players
-
-	// 250 metacoins
-	/datum/award/achievement/misc/grand_ritual_finale = METACOIN_AWARD_BIG, //you anyways don't get it, noob
-
-	// 500 metacoins
-	/datum/award/achievement/misc/pulse = METACOIN_AWARD_HUGE, //i just hit the jackpooot.
-
-	// Scores
-	/datum/award/score/hardcore_random = METACOIN_AWARD_CLOSE_TO_NOTHING, //5 more points for random character it's fair
-	/datum/award/score/intento_score = METACOIN_AWARD_NONE, // That's getting abused 100%
-	/datum/award/score/chef_tourist_score = METACOIN_AWARD_CLOSE_TO_NOTHING,
-	/datum/award/score/style_score = METACOIN_AWARD_CLOSE_TO_NOTHING,
-	/datum/award/score/maintenance_pill = METACOIN_AWARD_ONE_POINT,
-	/datum/award/score/progress/fish = METACOIN_AWARD_ONE_POINT,
-))
 
 GLOBAL_DATUM(metacoins_controller, /datum/metacoins_controller)
 
@@ -94,22 +50,17 @@ GLOBAL_DATUM(metacoins_controller, /datum/metacoins_controller)
 
 	roundstart_ready_ckeys = ready_ckey_set
 
-	var/roundstart_reward = get_reward_amount(METACOIN_REWARD_ROUNDSTART_READY)
-	if(roundstart_reward <= 0)
+	if(METACOIN_REWARD_ROUNDSTART_READY <= 0)
 		return
 
 	for(var/player_ckey in roundstart_ready_ckeys)
-		award_metacoins(player_ckey, roundstart_reward, "roundstart_ready", "Roundstart Ready")
+		award_metacoins(player_ckey, METACOIN_REWARD_ROUNDSTART_READY, "roundstart_ready", "Roundstart Ready")
 
 /datum/metacoins_controller/proc/grant_round_end_rewards()
 	if(round_awards_applied)
 		return
 
 	round_awards_applied = TRUE
-
-	var/survive_reward = get_reward_amount(METACOIN_REWARD_SURVIVE_EVAC)
-	var/important_role_reward = get_reward_amount(METACOIN_REWARD_IMPORTANT_JOBS)
-	var/antag_greentext_reward = get_reward_amount(METACOIN_REWARD_ANTAG_GREENTEXT)
 
 	var/list/processed_ckeys = list()
 	for(var/player_ckey in GLOB.joined_player_list)
@@ -118,12 +69,12 @@ GLOBAL_DATUM(metacoins_controller, /datum/metacoins_controller)
 
 		processed_ckeys[player_ckey] = TRUE
 
-		if(survive_reward > 0 && is_evacuation_condition_met(player_ckey))
-			award_metacoins(player_ckey, survive_reward, "survived_shift", "Survived Shift")
-		if(important_role_reward > 0 && is_important_role(player_ckey))
-			award_metacoins(player_ckey, important_role_reward, "social_role", "Highly Important Role")
-		if(antag_greentext_reward > 0 && is_antag_greentext(player_ckey))
-			award_metacoins(player_ckey, antag_greentext_reward, "antag_greentext", "Antagonist Greentext")
+		if(METACOIN_REWARD_SURVIVE_EVAC > 0 && is_evacuation_condition_met(player_ckey))
+			award_metacoins(player_ckey, METACOIN_REWARD_SURVIVE_EVAC, "survived_shift", "Survived Shift")
+		if(METACOIN_REWARD_IMPORTANT_JOBS > 0 && is_important_role(player_ckey))
+			award_metacoins(player_ckey, METACOIN_REWARD_IMPORTANT_JOBS, "social_role", "Highly Important Role")
+		if(METACOIN_REWARD_ANTAG_GREENTEXT > 0 && is_antag_greentext(player_ckey))
+			award_metacoins(player_ckey, METACOIN_REWARD_ANTAG_GREENTEXT, "antag_greentext", "Antagonist Greentext")
 /// Main proc for your awards. Integrate it wherever you like to
 ///
 /// Arguments:
@@ -132,11 +83,15 @@ GLOBAL_DATUM(metacoins_controller, /datum/metacoins_controller)
 /// * source - Source key for round log entries and per-round dedupe checks.
 /// * reason - reason shown in reward chat message.
 /// * allow_repeat - If TRUE, skips source dedupe and allows payout on every call.
-/// * resolve_from_award_type - If TRUE, reward_value is resolved through reward overrides/default.
-///
+/// * resolve_from_award_type - If TRUE, reward_value is resolved through the award datum's reward var.
+/// * sound - If TRUE plays a sound, check notify_player_reward_awarded
 /// Returns TRUE when payout is persisted, FALSE otherwise.
-/datum/metacoins_controller/proc/award_metacoins(target_ckey, reward_value, source, reason, allow_repeat = FALSE, resolve_from_award_type = FALSE)
-	var/amount = resolve_from_award_type ? get_achievement_reward(reward_value) : get_reward_amount(reward_value)
+/datum/metacoins_controller/proc/award_metacoins(target_ckey, reward_value, source, reason, allow_repeat = FALSE, resolve_from_award_type = FALSE, sound = TRUE)
+	var/amount
+	if(resolve_from_award_type)
+		amount = get_reward_amount(reward_value)
+	else
+		amount = reward_value
 	if(!target_ckey || amount <= 0)
 		return FALSE
 
@@ -171,7 +126,7 @@ GLOBAL_DATUM(metacoins_controller, /datum/metacoins_controller)
 		"source" = sanitized_source,
 		"reason" = sanitized_reason,
 	))
-	notify_player_reward_awarded(target_ckey, amount, reward_entries)
+	notify_player_reward_awarded(target_ckey, amount, reward_entries, sound)
 
 	var/mob/player_mob = get_mob_by_ckey(target_ckey)
 	if(player_mob)
@@ -179,19 +134,16 @@ GLOBAL_DATUM(metacoins_controller, /datum/metacoins_controller)
 
 	return TRUE
 
-/datum/metacoins_controller/proc/get_achievement_reward(achievement_type)
-	if(!achievement_type)
+/datum/metacoins_controller/proc/get_reward_amount(award_type)
+	if(!ispath(award_type, /datum/award))
 		return 0
 
-	var/list/reward_overrides = GLOB.metacoin_achievement_reward_overrides
-	var/custom_reward = reward_overrides?[achievement_type]
-	if(isnull(custom_reward))
-		custom_reward = reward_overrides?["[achievement_type]"]
+	var/datum/award/award_path = award_type
+	var/reward = award_path.reward
+	if(isnull(reward))
+		reward = 50
 
-	if(isnull(custom_reward))
-		return get_reward_amount(METACOIN_AWARD_SMALL)
-
-	return get_reward_amount(custom_reward)
+	return reward
 
 /datum/metacoins_controller/proc/is_roundstart_ready(target_ckey)
 	if(!target_ckey)
@@ -208,7 +160,7 @@ GLOBAL_DATUM(metacoins_controller, /datum/metacoins_controller)
 
 	var/total_reward = 0
 	for(var/list/award_entry in award_log)
-		total_reward += text2num(award_entry["amount"]) || 0
+		total_reward += award_entry["amount"] || 0
 
 	return total_reward
 
@@ -312,14 +264,7 @@ GLOBAL_DATUM(metacoins_controller, /datum/metacoins_controller)
 
 	return TRUE
 
-/datum/metacoins_controller/proc/get_reward_amount(raw_reward)
-	if(isnum(raw_reward))
-		return max(0, round(raw_reward))
-
-	var/parsed_reward = text2num("[raw_reward]") || 0
-	return max(0, round(parsed_reward))
-
-/datum/metacoins_controller/proc/notify_player_reward_awarded(target_ckey, total_reward, list/reward_entries)
+/datum/metacoins_controller/proc/notify_player_reward_awarded(target_ckey, total_reward, list/reward_entries, sound = TRUE)
 	if(total_reward <= 0)
 		return
 
@@ -329,13 +274,14 @@ GLOBAL_DATUM(metacoins_controller, /datum/metacoins_controller)
 
 	var/list/reason_parts = list()
 	for(var/list/reward_entry in reward_entries)
-		var/entry_amount = text2num(reward_entry["amount"]) || 0
+		var/entry_amount = reward_entry["amount"] || 0
 		if(entry_amount <= 0)
 			continue
 		reason_parts += "+[entry_amount] [reward_entry["reason"] || "Reward"]"
 
 	var/reasons_text = length(reason_parts) ? jointext(reason_parts, ", ") : "+[total_reward] Reward"
-	player_mob.playsound_local(player_mob, 'sound/effects/coin2.ogg', 40, TRUE, use_reverb = FALSE)
+	if(sound)
+		player_mob.playsound_local(player_mob, 'sound/effects/coin2.ogg', 40, TRUE, use_reverb = FALSE, pressure_affected = FALSE)
 	to_chat(player_mob, span_boldnicegreen("You received [total_reward] metacoins ([reasons_text])."))
 
 /datum/metacoins_controller/proc/add_metacoins(target_ckey, amount)
@@ -419,7 +365,7 @@ GLOBAL_DATUM(metacoins_controller, /datum/metacoins_controller)
 
 	var/metacoin_balance = 0
 	if(select_query.NextRow(async = FALSE))
-		metacoin_balance = text2num(select_query.item[1]) || 0
+		metacoin_balance = select_query.item[1] || 0
 
 	qdel(select_query)
 	return metacoin_balance
@@ -487,10 +433,3 @@ ADMIN_VERB(mc_give, R_ADMIN, "Grant Metacoins", "Grant metacoins to a target cke
 #undef METACOIN_IMPORTANT_JOBS
 #undef METACOIN_ICON_PATH
 #undef METACOIN_ICON_STATE
-#undef METACOIN_AWARD_NONE
-#undef METACOIN_AWARD_ONE_POINT
-#undef METACOIN_AWARD_CLOSE_TO_NOTHING
-#undef METACOIN_AWARD_SMALL
-#undef METACOIN_AWARD_MED
-#undef METACOIN_AWARD_BIG
-#undef METACOIN_AWARD_HUGE

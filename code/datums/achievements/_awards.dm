@@ -96,7 +96,7 @@
 	var/datum/metacoins_controller/metacoin_controller = get_metacoins_controller()
 	if(metacoin_controller)
 		var/achievement_type_string = "[type]"
-		metacoin_controller.award_metacoins(holder.owner_ckey, type, "achievement:[achievement_type_string]", "Achievement: [name || achievement_type_string]", FALSE, TRUE)
+		metacoin_controller.award_metacoins(holder.owner_ckey, type, "achievement:[achievement_type_string]", "Achievement: [name || achievement_type_string]", FALSE, TRUE, sound = TRUE)
 	//MASSMETA EDIT ADDITION END (metacoins)
 	to_chat(user, span_greenannounce("<B>Achievement unlocked: [name]!</B>"))
 	var/sound/sound_to_send = LAZYACCESS(GLOB.achievement_sounds, user.client.prefs.read_preference(/datum/preference/choiced/sound_achievement))
@@ -165,7 +165,7 @@
 	var/datum/metacoins_controller/metacoin_controller = get_metacoins_controller()
 	if(metacoin_controller)
 		var/score_type_string = "[type]"
-		metacoin_controller.award_metacoins(holder.owner_ckey, type, "score:[score_type_string]", "Score: [name || score_type_string]", TRUE, TRUE)
+		metacoin_controller.award_metacoins(holder.owner_ckey, type, "score:[score_type_string]", "Score: [name || score_type_string]", TRUE, TRUE, sound = TRUE)
 	//MASSMETA EDIT ADDITION END (metacoins)
 
 /datum/award/score/get_ui_data(list/award_data, datum/achievement_data/holder)

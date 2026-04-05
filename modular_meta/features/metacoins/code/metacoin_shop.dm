@@ -79,7 +79,7 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 			"listing_name" = "antag_token",
 			"listing_display_name" = "Antag Token",
 			"listing_display_desc" = "Guarantees one chosen antagonist role at roundstart.",
-			"listing_price" = 500,
+			"listing_price" = 650,
 			"listing_typepath" = /obj/item/coin/antagtoken, // to get the display icon of ours
 			"listing_kind" = "antag_token",
 		),
@@ -710,6 +710,25 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 
 	return list("ok" = TRUE)
 
+/datum/metacoin_shop_controller/proc/check_dynamic(datum/mind/target_mind)
+	var/list/conflicts = list()
+	if(!target_mind || !SSdynamic)
+		return conflicts
+
+	for(var/datum/dynamic_ruleset/roundstart/ruleset as anything in SSdynamic.queued_rulesets)
+		if(!(target_mind in ruleset.selected_minds))
+			continue
+
+		var/ruleset_name = ruleset.name
+		if(!ruleset_name)
+			ruleset_name = ruleset.config_tag
+		if(!ruleset_name)
+			ruleset_name = "[ruleset.type]"
+
+		conflicts += ruleset_name
+
+	return conflicts
+
 /datum/metacoin_shop_controller/proc/try_grant_antag_token_after_spawn(target_ckey, mob/living/spawned, client/player_client)
 	if(!target_ckey)
 		return
@@ -722,6 +741,19 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 
 	var/mob/notify_mob = ismob(spawned) ? spawned : get_mob_by_ckey(target_ckey)
 	var/datum/job/current_job = spawned?.mind?.assigned_role
+	var/list/dynamic_conflicts = check_dynamic(spawned?.mind)
+	if(length(dynamic_conflicts))
+		var/conflict_text = english_list(dynamic_conflicts)
+		var/log_rulesets = jointext(dynamic_conflicts, ", ")
+		if(!conflict_text)
+			conflict_text = "unknown dynamic ruleset"
+		if(!log_rulesets)
+			log_rulesets = "unknown"
+		var/failure_text = "Antag token was refunded due to Dynamic subsystem role assignment ([conflict_text])."
+		log_game("[src] antag token grant canceled for [target_ckey]: code=dynamic_interference, role=[selected_role], rulesets=[log_rulesets], job=[current_job?.title].")
+		refund_antag_token_purchase(target_ckey, failure_text, notify_mob)
+		return
+
 	var/list/block_info = get_antag_token_role_block_info(target_ckey, selected_role, current_job)
 	if(block_info)
 		var/failure_text = "Antag token could not be applied: [get_antag_token_role_block_text(block_info)]"
