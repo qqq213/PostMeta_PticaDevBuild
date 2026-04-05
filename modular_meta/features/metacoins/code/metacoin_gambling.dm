@@ -112,24 +112,58 @@
 
 	return max(next_spin_time - world.time, 0)
 
-/datum/metacoin_shop_controller/proc/announce_slot_big_win(winner_name, payout_amount, jackpot_hit)
+/datum/metacoin_shop_controller/proc/announce_slot_big_win(winner_name, payout_amount, jackpot_hit, atom/winner_source)
 	if(!winner_name || payout_amount <= 0)
 		return
-//priority announce might be too much actually.. who cares though?
+
+	var/announce_text
+	var/announce_title
+	var/announce_sound
+
 	if(jackpot_hit)
-		priority_announce(
-			text = "[winner_name] hit the metacoin slot JACKPOT and won [payout_amount] metacoins!",
-			title = "Metacoin Slot Jackpot",
-			sound = 'sound/machines/roulette/roulettejackpot.ogg',
-			has_important_message = TRUE,
-		)
+		announce_text = "[winner_name] hit the metacoin slot JACKPOT and won [payout_amount] metacoins!"
+		announce_title = "Metacoin Slot Jackpot"
+		announce_sound = 'sound/machines/roulette/roulettejackpot.ogg'
+	else if(payout_amount >= METACOIN_SLOT_PAYOUT_LINE5)
+		announce_text = "[winner_name] won a huge metacoin slot payout: [payout_amount] metacoins!"
+		announce_title = "Metacoin Slot Big Win"
+		announce_sound = 'sound/effects/kaching.ogg'
+	else
 		return
 
-	if(payout_amount >= METACOIN_SLOT_PAYOUT_LINE5)
-		priority_announce(
-			text = "[winner_name] won a huge metacoin slot payout: [payout_amount] metacoins!",
-			title = "Metacoin Slot Big Win",
-			sound = 'sound/effects/kaching.ogg',
+	var/title = html_encode(announce_title)
+	var/text = html_encode(announce_text)
+	var/announce_final = "<div class='chat_alert_default'><span class='announcement_header'><span class='minor_announcement_title'>[title]</span></span><span class='minor_announcement_text'>[text]</span></div>"
+
+	for(var/mob/lobby_mob as anything in GLOB.new_player_list)
+		if(!isnewplayer(lobby_mob))
+			continue
+		if(QDELETED(lobby_mob) || lobby_mob.stat != DEAD)
+			continue
+		var/mob/dead/new_player/new_player = lobby_mob
+		if(!new_player.client)
+			continue
+		to_chat(new_player, announce_final)
+		if(new_player.client?.prefs.read_preference(/datum/preference/toggle/sound_announcements))
+			SEND_SOUND(new_player, sound(announce_sound))
+
+	for(var/mob/player_mob as anything in GLOB.player_list)
+		if(!isobserver(player_mob))
+			continue
+		if(QDELETED(player_mob) || player_mob.stat != DEAD)
+			continue
+		var/mob/dead/observer/ghost = player_mob
+		if(!ghost.client)
+			continue
+		to_chat(ghost, announce_final)
+		if(ghost.client?.prefs.read_preference(/datum/preference/toggle/sound_announcements))
+			SEND_SOUND(ghost, sound(announce_sound))
+
+	if(isobserver(winner_source))
+		notify_ghosts(
+			message = "[title]: [text]",
+			source = winner_source,
+			header = announce_title
 		)
 
 /datum/metacoin_shop_controller/proc/try_slot_spin(target_ckey, mob/request_user)
@@ -387,7 +421,7 @@
 
 	if(payout_amount >= METACOIN_SLOT_PAYOUT_LINE5)
 		var/winner_name = user_mob?.real_name || owner?.ckey || "Unknown"
-		get_metacoin_shop_controller().announce_slot_big_win(winner_name, payout_amount, jackpot_hit)
+		get_metacoin_shop_controller().announce_slot_big_win(winner_name, payout_amount, jackpot_hit, user_mob)
 
 	if(user_mob)
 		if(jackpot_hit)
