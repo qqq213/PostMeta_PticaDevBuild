@@ -404,3 +404,21 @@
 /obj/item/gun/ballistic/automatic/wt550/waffle
 	name = "\improper C-570 Autorifle"
 	desc = "A lightweight, fully automatic carbine rifle based on a leaked Nanotrasen design. Uses 4.6x30mm rounds. It has 'Scarborough Arms' inscribed on its handle."
+
+//icemoon
+
+/datum/outfit/deathmatch_loadout/miner
+	name = "Deathmatch: Miner"
+	display_name = "Miner"
+	desc = "Rock and Stone!"
+
+	r_hand = /obj/item/gun/energy/recharge/kinetic_accelerator
+	uniform = /obj/item/clothing/under/rank/cargo/miner/lavaland
+	glasses = /obj/item/clothing/glasses/meson/night
+	suit = /obj/item/clothing/suit/hooded/explorer
+	shoes = /obj/item/clothing/shoes/workboots/mining
+	mask = /obj/item/clothing/mask/gas/explorer
+	internals_slot = ITEM_SLOT_SUITSTORE
+	suit_store = /obj/item/tank/internals/oxygen/yellow
+	l_pocket = /obj/item/knife/combat/survival
+	r_pocket = /obj/item/flashlight/seclite

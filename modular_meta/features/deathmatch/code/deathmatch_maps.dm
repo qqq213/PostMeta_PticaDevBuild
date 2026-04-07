@@ -109,3 +109,11 @@ datum/lazy_template/deathmatch/furiousmages
 		)
 	map_name = "waffle_corp"
 	key = "waffle_corp"
+
+/datum/lazy_template/deathmatch/icemoon
+	name = "Planet Icemoon"
+	desc = "Fight until you freeze."
+	max_players = 8
+	allowed_loadouts = list(/datum/outfit/deathmatch_loadout/miner)
+	map_name = "icemoon"
+	key = "icemoon"
