@@ -23,7 +23,6 @@
 	gloves = /obj/item/clothing/gloves/fingerless
 	belt = /obj/item/grenade/c4
 	back = /obj/item/storage/backpack/saddlepack
-	head = /obj/item/clothing/head/helmet/rus_helmet
 	mask = /obj/item/clothing/mask/balaclava
 	shoes = /obj/item/clothing/shoes/workboots
 
@@ -35,6 +34,14 @@
 		/obj/item/grenade/c4,
 		/obj/item/grenade/c4,
 	)
+
+/datum/outfit/deathmatch_loadout/t_mid_east/pre_equip(mob/living/carbon/human/user, visualsOnly = FALSE)
+
+	switch(pick(list("headband", "helmet")))
+		if("headband")
+			head = /obj/item/clothing/head/costume/celebrant_headband
+		if("helmet")
+			head = /obj/item/clothing/head/helmet/rus_helmet
 
 /datum/outfit/deathmatch_loadout/ct_mid_east
 	name = "Deathmatch: NaTo Marines"
@@ -76,6 +83,8 @@
 
 	skillchips = list(/obj/item/skillchip/kaza_ruk)
 
+//library
+
 /datum/outfit/deathmatch_loadout/curator
 	name = "Deathmatch: Curator"
 	display_name = "Curator"
@@ -85,13 +94,14 @@
 	back = /obj/item/storage/backpack
 	box = /obj/item/storage/box/survival
 	backpack_contents = list(/obj/item/choice_beacon/hero = 1)
-	belt = /obj/item/modular_computer/pda/curator
 	shoes = /obj/item/clothing/shoes/laceup
 	l_pocket = /obj/item/laser_pointer/green
 	r_pocket = /obj/item/key/displaycase
 	l_hand = /obj/item/storage/bag/books
 
 	accessory = /obj/item/clothing/accessory/pocketprotector/full
+
+//nuthouse
 
 /datum/outfit/deathmatch_loadout/patient
 	name = "Deathmatch: Patient"
@@ -338,18 +348,16 @@
 /datum/outfit/deathmatch_loadout/syndicate/cybersun
 	name = "Deathmatch: Cybersun Troubleshooter"
 	display_name = "Cybersun Industries"
-	desc = "The loadout used by Cybersun's infamous Troubleshooter Division. Equipped with an S-120, and energy dagger, and inducer cells."
+	desc = "The loadout used by Cybersun's infamous Troubleshooter Division. Equipped with an S-120, and energy dagger, and emp flashlight."
 	uniform = /obj/item/clothing/under/syndicate/combat
 	suit = /obj/item/clothing/suit/jacket/oversized
 	glasses = /obj/item/clothing/glasses/sunglasses/oval
 	back = /obj/item/storage/backpack/messenger
-	belt = /obj/item/gun/energy/laser/carbine/cybersun/unrestricted
+	belt = /obj/item/gun/energy/laser/cybersun/unrestricted
 	l_hand = null
 	l_pocket = /obj/item/pen/edagger
 	backpack_contents = list(/obj/item/flashlight/emp)
 
-/obj/item/gun/energy/laser/carbine/cybersun/unrestricted
-	pin = /obj/item/firing_pin
 
 /datum/outfit/deathmatch_loadout/syndicate/donk
 	name = "Deathmatch: Donk Co. Employee"
@@ -396,3 +404,21 @@
 /obj/item/gun/ballistic/automatic/wt550/waffle
 	name = "\improper C-570 Autorifle"
 	desc = "A lightweight, fully automatic carbine rifle based on a leaked Nanotrasen design. Uses 4.6x30mm rounds. It has 'Scarborough Arms' inscribed on its handle."
+
+//icemoon
+
+/datum/outfit/deathmatch_loadout/miner
+	name = "Deathmatch: Miner"
+	display_name = "Miner"
+	desc = "Rock and Stone!"
+
+	r_hand = /obj/item/gun/energy/recharge/kinetic_accelerator
+	uniform = /obj/item/clothing/under/rank/cargo/miner/lavaland
+	glasses = /obj/item/clothing/glasses/meson/night
+	suit = /obj/item/clothing/suit/hooded/explorer
+	shoes = /obj/item/clothing/shoes/workboots/mining
+	mask = /obj/item/clothing/mask/gas/explorer
+	internals_slot = ITEM_SLOT_SUITSTORE
+	suit_store = /obj/item/tank/internals/oxygen/yellow
+	l_pocket = /obj/item/knife/combat/survival
+	r_pocket = /obj/item/flashlight/seclite
