@@ -44,16 +44,26 @@
 
 /datum/metacoinshop/antag_role
 	var/id
+	/// Displayed name.
 	var/name
+	/// Displayed description.
 	var/desc
+	/// as in code\modules\jobs\departments\departments.dm. Needed for UI sorting purpouses.
+	var/ui_order = 100
+/// Check dynamic.toml, put here your ruleset tag \
+(The name of it, e.g ["Roundstart Traitor"]) Under no circumstances there shall be midround antag, or any other that spawns with unique loadout.
 	var/ruleset_tag
+	/// check code\__DEFINES\role_preferences.dm , when bought role is banned, then it will try to refund the metacoins.
 	var/jobban_flag
+	/// Your antag datum.
 	var/antag_datum
+	/// Defaulted value, if for some reason config is unavailable.
 	var/default_min_pop = 0
 
 /datum/metacoinshop/antag_role/traitor
 	id = "traitor"
 	name = "Traitor"
+	ui_order = 10
 	desc = "An unpaid debt. A score to be settled. Maybe you were just in the wrong \
 	   	place at the wrong time. Whatever the reasons, you were selected to \
 	   	infiltrate Space Station 13."
@@ -65,6 +75,7 @@
 /datum/metacoinshop/antag_role/changeling
 	id = "changeling"
 	name = "Changeling"
+	ui_order = 20
 	desc = "A highly intelligent alien predator that is capable of altering their \
 	shape to flawlessly resemble a human."
 	ruleset_tag = "Roundstart Changeling"
@@ -75,6 +86,7 @@
 /datum/metacoinshop/antag_role/heretic
 	id = "heretic"
 	name = "Heretic"
+	ui_order = 30
 	desc = " Forgotten, devoured, gutted. Humanity has forgotten the eldritch forces \
 	   	of decay, but the mansus veil has weakened. We will make them taste fear \
 	   	again..."
@@ -86,8 +98,12 @@
 /datum/metacoinshop/antag_role/spy
 	id = "spy"
 	name = "Spy"
-	desc = "123"
+	ui_order = 40
+	desc = "Your mission, should you choose to accept it: Infiltrate Space Station 13. \
+	Disguise yourself as a member of their crew and steal vital equipment. \
+	Should you be caught or killed, your employer will disavow any knowledge of your actions. Good luck agent. \
+	Complete Spy Bounties to earn rewards from your employer. Use these rewards to sow chaos and mischief!"
 	ruleset_tag = "Roundstart Spies"
-	jobban_flag = ROLE_CHANGELING
+	jobban_flag = ROLE_SPY
 	antag_datum = /datum/antagonist/spy
-	default_min_pop = 15
+	default_min_pop = 5

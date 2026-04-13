@@ -6,6 +6,13 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 		GLOB.metacoin_shop_controller.register_signals()
 	return GLOB.metacoin_shop_controller
 
+/proc/cmp_antag_role_ui(datum/metacoinshop/antag_role/a, datum/metacoinshop/antag_role/b)
+	var/order_diff = cmp_numeric_asc(a.ui_order, b.ui_order)
+	if(order_diff)
+		return order_diff
+
+	return cmp_text_asc(a.id, b.id)
+
 /datum/metacoin_shop_controller
 	var/list/preround_catalog = list()
 	var/list/preround_pending_by_ckey = list()
@@ -118,6 +125,8 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 		antag_roles = list()
 		for(var/role_path in subtypesof(/datum/metacoinshop/antag_role))
 			antag_roles += new role_path
+
+		antag_roles = sort_list(antag_roles, GLOBAL_PROC_REF(cmp_antag_role_ui))
 
 	return antag_roles
 
