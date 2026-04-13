@@ -6,26 +6,6 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 		GLOB.metacoin_shop_controller.register_signals()
 	return GLOB.metacoin_shop_controller
 
-/datum/metacoin_shop_listing
-	var/id
-	var/name
-	var/desc
-	var/price
-	var/item_type
-	var/listing_kind = "item"
-	var/icon
-	var/icon_state
-
-/datum/metacoin_shop_listing/New(id, name, desc, price, item_type, listing_kind = "item", icon, icon_state)
-	src.id = id
-	src.name = name
-	src.desc = desc
-	src.price = price
-	src.item_type = item_type
-	src.listing_kind = listing_kind
-	src.icon = icon
-	src.icon_state = icon_state
-
 /datum/metacoin_shop_controller
 	var/list/preround_catalog = list()
 	var/list/preround_pending_by_ckey = list()
@@ -39,89 +19,16 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 	. = ..()
 	setup_catalog()
 
-//Add your items here!!!! ~`_-´
-//In the list preround_catalog
-
-/* EXAMPLE:
-		alist(
-			"listing_name" = "donut_box",
-			"listing_display_name" = "Donut Box",
-			"listing_display_desc" = "A box of donuts delivered on your first roundstart spawn.",
-			"listing_price" = 5,
-			"listing_typepath" = /obj/item/storage/fancy/donut_box,
-		),
-*/
-
 /datum/metacoin_shop_controller/proc/setup_catalog()
-	var/list/raw_preround_catalog = list(
-		alist(
-			"listing_name" = "donut_box",
-			"listing_display_name" = "Donut Box",
-			"listing_display_desc" = "A box of donuts... what else do you expect?",
-			"listing_price" = 50,
-			"listing_typepath" = /obj/item/storage/fancy/donut_box,
-		),
-		alist(
-			"listing_name" = "spray_libital",
-			"listing_display_name" = "Libital Spray",
-			"listing_display_desc" = "An medigel full of libital, mainly used to treat bruises",
-			"listing_price" = 75,
-			"listing_typepath" = /obj/item/reagent_containers/medigel/libital,
-		),
-		alist(
-			"listing_name" = "spray_auri",
-			"listing_display_name" = "Aiuri Spray",
-			"listing_display_desc" = "An medigel full of aiuri, mainly used to treat burns",
-			"listing_price" = 75,
-			"listing_typepath" = /obj/item/reagent_containers/medigel/aiuri,
-		),
-		alist(
-			"listing_name" = "antag_token",
-			"listing_display_name" = "Antag Token",
-			"listing_display_desc" = "Guarantees one chosen antagonist role at roundstart.",
-			"listing_price" = 650,
-			"listing_typepath" = /obj/item/coin/antagtoken, // to get the display icon of ours
-			"listing_kind" = "antag_token",
-		),
-	)
-
 	preround_catalog = alist()
-	for(var/listing_data in raw_preround_catalog)
-		if(!listing_data)
-			continue
+	for(var/listing_path in subtypesof(/datum/metacoinshop/listing/preround))
+		var/datum/metacoinshop/listing/listing = new listing_path
+		if(listing.item_type && !listing.icon)
+			var/obj/item/type_cast_item_path = listing.item_type
+			listing.icon = initial(type_cast_item_path.icon)
+			listing.icon_state = initial(type_cast_item_path.icon_state)
 
-		var/listing_name = listing_data["listing_name"]
-		if(!listing_name)
-			continue
-
-		var/listing_display_name = listing_data["listing_display_name"]
-		var/listing_display_desc = listing_data["listing_display_desc"]
-		var/listing_price = listing_data["listing_price"]
-		var/listing_typepath = listing_data["listing_typepath"]
-		var/listing_kind = listing_data["listing_kind"]
-		if(!listing_kind)
-			listing_kind = "item"
-		var/listing_icon = listing_data["listing_icon"]
-		var/listing_icon_state = listing_data["listing_icon_state"]
-
-		if(listing_kind == "item" && !listing_typepath)
-			continue
-
-		if(listing_typepath && !listing_icon)
-			var/obj/item/type_cast_item_path = listing_typepath
-			listing_icon = initial(type_cast_item_path.icon)
-			listing_icon_state = initial(type_cast_item_path.icon_state)
-
-		preround_catalog[listing_name] = new /datum/metacoin_shop_listing(
-			listing_name,
-			listing_display_name,
-			listing_display_desc,
-			listing_price,
-			listing_typepath,
-			listing_kind,
-			listing_icon,
-			listing_icon_state,
-		)
+		preround_catalog[listing.id] = listing
 
 /datum/metacoin_shop_controller/proc/register_signals()
 	if(signals_registered)
@@ -205,57 +112,22 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 
 	return "Warning: you have restricted jobs enabled in preferences ([english_list(restricted_preferences)]). If one of these jobs is assigned at roundstart, antag token will be refunded."
 
-/datum/metacoin_shop_controller/proc/get_antag_token_role_definitions()
-	var/static/list/role_definitions = list(
-		alist(
-			"id" = "traitor",
-			"name" = "Traitor",
-			"desc" = "An unpaid debt. A score to be settled. Maybe you were just in the wrong \
-	   		place at the wrong time. Whatever the reasons, you were selected to \
-	   		infiltrate Space Station 13.",
-			"ruleset_tag" = "Roundstart Traitor",
-			"jobban_flag" = ROLE_TRAITOR,
-			"antag_datum" = /datum/antagonist/traitor,
-			"default_min_pop" = 3,
-		),
-		alist(
-			"id" = "changeling",
-			"name" = "Changeling",
-			"desc" = "A highly intelligent alien predator that is capable of altering their \
-	 shape to flawlessly resemble a human.",
-			"ruleset_tag" = "Roundstart Changeling",
-			"jobban_flag" = ROLE_CHANGELING,
-			"antag_datum" = /datum/antagonist/changeling,
-			"default_min_pop" = 15,
-		),
-		alist(
-			"id" = "heretic",
-			"name" = "Heretic",
-			"desc" = " Forgotten, devoured, gutted. Humanity has forgotten the eldritch forces \
-	   		of decay, but the mansus veil has weakened. We will make them taste fear \
-	   		again...",
-			"ruleset_tag" = "Roundstart Heretics",
-			"jobban_flag" = ROLE_HERETIC,
-			"antag_datum" = /datum/antagonist/heretic,
-			"default_min_pop" = 30,
-		),
+/datum/metacoin_shop_controller/proc/get_antag_roles()
+	var/static/list/antag_roles = list(
+		new /datum/metacoinshop/antag_role/traitor,
+		new /datum/metacoinshop/antag_role/changeling,
+		new /datum/metacoinshop/antag_role/heretic,
 	)
 
-	return role_definitions
+	return antag_roles
 
-/datum/metacoin_shop_controller/proc/get_antag_token_role_definition(role_id)
+/datum/metacoin_shop_controller/proc/get_antag_role(role_id)
 	if(!role_id)
 		return null
 
-	var/list/role_definitions = get_antag_token_role_definitions()
-	for(var/role_key in role_definitions)
-		var/list/role_definition = role_definitions[role_key]
-		if(!islist(role_definition) && islist(role_key))
-			role_definition = role_key
-		if(!islist(role_definition))
-			continue
-		if(role_definition["id"] == role_id)
-			return role_definition
+	for(var/datum/metacoinshop/antag_role/role as anything in get_antag_roles())
+		if(role.id == role_id)
+			return role
 
 	return null
 
@@ -263,10 +135,10 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 	if(!role_id)
 		return null
 
-	var/list/role_definition = get_antag_token_role_definition(role_id)
-	if(!role_definition)
+	var/datum/metacoinshop/antag_role/role = get_antag_role(role_id)
+	if(!role)
 		return null
-	return role_definition["name"]
+	return role.name
 
 /datum/metacoin_shop_controller/proc/dynamic_weight_has_positive_value(weight_setting)
 	if(isnull(weight_setting))
@@ -299,11 +171,11 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 	return max(text2num("[fallback_value]"), 0)
 
 /datum/metacoin_shop_controller/proc/get_antag_token_role_block_info(target_ckey, role_id, datum/job/current_job = null)
-	var/list/role_definition = get_antag_token_role_definition(role_id)
-	if(!role_definition)
+	var/datum/metacoinshop/antag_role/role = get_antag_role(role_id)
+	if(!role)
 		return list("code" = "unknown_role")
 
-	var/role_ban_flag = role_definition["jobban_flag"]
+	var/role_ban_flag = role.jobban_flag
 	if(target_ckey && is_banned_from(target_ckey, list(ROLE_SYNDICATE, role_ban_flag)))
 		return list("code" = "job_banned")
 
@@ -313,11 +185,11 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 			"job_title" = current_job.title,
 		)
 
-	var/default_min_pop = role_definition["default_min_pop"]
+	var/default_min_pop = role.default_min_pop
 	var/min_pop_setting = default_min_pop
 
 	if(CONFIG_GET(flag/dynamic_config_enabled))
-		var/ruleset_tag = role_definition["ruleset_tag"]
+		var/ruleset_tag = role.ruleset_tag
 		var/list/ruleset_config = SSdynamic.get_config()?[ruleset_tag]
 
 		if(!isnull(ruleset_config?["weight"]) && !dynamic_weight_has_positive_value(ruleset_config["weight"]))
@@ -364,21 +236,14 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 /datum/metacoin_shop_controller/proc/get_antag_token_roles_ui_data(target_ckey)
 	var/list/roles_ui_data = list()
 
-	var/list/role_definitions = get_antag_token_role_definitions()
-	for(var/role_key in role_definitions)
-		var/list/role_definition = role_definitions[role_key]
-		if(!islist(role_definition) && islist(role_key))
-			role_definition = role_key
-		if(!islist(role_definition))
-			continue
-
-		var/role_id = role_definition["id"]
+	for(var/datum/metacoinshop/antag_role/role as anything in get_antag_roles())
+		var/role_id = role.id
 		var/list/block_info = get_antag_token_role_block_info(target_ckey, role_id)
 
 		roles_ui_data += list(list(
 			"id" = role_id,
-			"name" = role_definition["name"],
-			"desc" = role_definition["desc"],
+			"name" = role.name,
+			"desc" = role.desc,
 			"prefIconClass" = role_id,
 			"fallbackIcon" = default_listing_fallback_icon,
 			"available" = isnull(block_info),
@@ -398,7 +263,7 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 		log_game("[src] antag token refund skipped for [target_ckey]: no pending reservation.")
 		return FALSE
 
-	var/datum/metacoin_shop_listing/antag_listing = get_antag_token_listing()
+	var/datum/metacoinshop/listing/antag_listing = get_antag_token_listing()
 	var/refund_amount = antag_listing?.price || 0
 
 	antag_token_pending_by_ckey -= target_ckey
@@ -451,11 +316,11 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 	var/balance = fetch_metacoin_balance(target_ckey)
 
 	for(var/listing_id in preround_catalog)
-		var/datum/metacoin_shop_listing/listing = preround_catalog[listing_id]
+		var/datum/metacoinshop/listing/listing = preround_catalog[listing_id]
 		if(!listing)
 			continue
 
-		var/is_antag_token = listing.listing_kind == "antag_token"
+		var/is_antag_token = listing.id == "antag_token"
 		var/is_owned = FALSE
 		if(is_antag_token)
 			is_owned = !isnull(selected_antag_role)
@@ -464,7 +329,7 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 
 		var/list/listing_payload = list(
 			"id" = listing.id,
-			"kind" = listing.listing_kind,
+			"kind" = is_antag_token ? "antag_token" : "item",
 			"name" = listing.name,
 			"desc" = listing.desc,
 			"price" = listing.price,
@@ -589,11 +454,11 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 	if(!is_preround_purchase_open())
 		return list("ok" = FALSE, "error" = "shop_closed")
 
-	var/datum/metacoin_shop_listing/listing = preround_catalog[item_id]
+	var/datum/metacoinshop/listing/listing = preround_catalog[item_id]
 	if(!listing)
 		return list("ok" = FALSE, "error" = "unknown_item")
 
-	if(listing.listing_kind == "antag_token")
+	if(listing.listing_type != "item")
 		return list("ok" = FALSE, "error" = "open_antag_panel")
 
 	var/list/pending_items = preround_pending_by_ckey[target_ckey]
@@ -662,7 +527,7 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 	if(block_info)
 		return list("ok" = FALSE, "error" = block_info["code"])
 
-	var/datum/metacoin_shop_listing/listing = get_antag_token_listing()
+	var/datum/metacoinshop/listing/listing = get_antag_token_listing()
 	if(!listing)
 		return list("ok" = FALSE, "error" = "unknown_item")
 
@@ -772,13 +637,13 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 		refund_antag_token_purchase(target_ckey, "Antag token failed: no valid player mind found.", notify_mob)
 		return
 
-	var/list/role_definition = get_antag_token_role_definition(selected_role)
-	if(!role_definition)
+	var/datum/metacoinshop/antag_role/role = get_antag_role(selected_role)
+	if(!role)
 		log_game("[src] antag token grant failed for [target_ckey]: invalid role definition '[selected_role]'.")
 		refund_antag_token_purchase(target_ckey, "Antag token failed: selected role is invalid.", notify_mob)
 		return
 
-	var/antag_datum_path = role_definition["antag_datum"]
+	var/antag_datum_path = role.antag_datum
 	var/datum/antagonist/created_antag = new antag_datum_path()
 	created_antag.silent = TRUE
 	human_spawned.mind.add_antag_datum(created_antag)
@@ -796,7 +661,7 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 
 	/*if(notify_mob)
 	unnecessary actually. why do you think we have stinger sounds?
-		var/role_name = role_definition["name"]
+		var/role_name = role.name
 		to_chat(notify_mob, span_boldnicegreen("Antag token applied successfully: [role_name]."))
 		notify_mob.playsound_local(notify_mob, 'sound/misc/server-ready.ogg', 25, TRUE, use_reverb = FALSE)
 	*/
@@ -865,8 +730,8 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 	var/mob/living/carbon/human/human_spawned = spawned
 
 	for(var/item_id in pending_items)
-		var/datum/metacoin_shop_listing/listing = preround_catalog[item_id]
-		if(listing?.listing_kind != "item" || !listing?.item_type)
+		var/datum/metacoinshop/listing/listing = preround_catalog[item_id]
+		if(listing?.listing_type != "item" || !listing?.item_type)
 			continue
 
 		var/obj/item/new_item = new listing.item_type(human_spawned)
@@ -986,7 +851,7 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 	var/datum/metacoin_shop_controller/shop = get_metacoin_shop_controller()
 	var/balance = shop.fetch_metacoin_balance(client_ckey)
 	var/selected_role = shop.antag_token_pending_by_ckey[client_ckey]
-	var/datum/metacoin_shop_listing/antag_listing = shop.get_antag_token_listing()
+	var/datum/metacoinshop/listing/antag_listing = shop.get_antag_token_listing()
 
 	data["isPregame"] = shop.is_preround_purchase_open()
 	data["balance"] = isnull(balance) ? 0 : balance
