@@ -171,7 +171,7 @@
 	if(!target_ckey)
 		return list("ok" = FALSE, "error" = "invalid_request")
 
-	if(!is_preround_purchase_open() && !isobserver(request_user))
+	if(!is_open() && !isobserver(request_user))
 		return list("ok" = FALSE, "error" = "shop_closed")
 
 	if(slot_spin_locks_by_ckey[target_ckey])
@@ -192,7 +192,7 @@
 
 	var/list/result = list("ok" = FALSE, "error" = "unknown")
 
-	var/current_balance = fetch_metacoin_balance(target_ckey)
+	var/current_balance = fetch_balance(target_ckey)
 	if(isnull(current_balance))
 		result["error"] = "db_unavailable"
 		slot_spin_locks_by_ckey -= target_ckey
@@ -219,7 +219,7 @@
 		return result
 	qdel(debit_query)
 
-	var/post_debit_balance = fetch_metacoin_balance(target_ckey)
+	var/post_debit_balance = fetch_balance(target_ckey)
 	if(isnull(post_debit_balance))
 		result["error"] = "db_failed"
 		slot_spin_locks_by_ckey -= target_ckey
@@ -253,7 +253,7 @@
 			return result
 		qdel(payout_query)
 
-	var/final_balance = fetch_metacoin_balance(target_ckey)
+	var/final_balance = fetch_balance(target_ckey)
 	if(isnull(final_balance))
 		result["error"] = "db_failed"
 		slot_spin_locks_by_ckey -= target_ckey
@@ -282,7 +282,7 @@
 
 /datum/metacoin_slot_panel/New(client/owner, mob/viewer)
 	src.owner = owner
-	current_reels = get_metacoin_shop_controller().roll_slot_reels()
+	current_reels = get_metacoin_controller().roll_slot_reels()
 	last_spin = list(
 		"lineLength" = 0,
 		"payout" = 0,
@@ -306,7 +306,7 @@
 	var/list/data = list()
 
 	data["icons"] = list()
-	var/list/icons_catalog = get_metacoin_shop_controller().get_slot_icons_catalog()
+	var/list/icons_catalog = get_metacoin_controller().get_slot_icons_catalog()
 	for(var/icon_name in icons_catalog)
 		var/list/icon_info = icons_catalog[icon_name]
 		data["icons"] += list(list(
@@ -324,11 +324,11 @@
 
 /datum/metacoin_slot_panel/ui_data(mob/user)
 	var/list/data = list()
-	var/datum/metacoin_shop_controller/shop = get_metacoin_shop_controller()
+	var/datum/metacoin_shop_controller/shop = get_metacoin_controller()
 	var/client_ckey = owner?.ckey
-	var/balance = shop.fetch_metacoin_balance(client_ckey)
+	var/balance = shop.fetch_balance(client_ckey)
 
-	data["isPregame"] = shop.is_preround_purchase_open()
+	data["isPregame"] = shop.is_open()
 	data["isObserver"] = isobserver(user)
 	data["working"] = working
 	data["balance"] = isnull(balance) ? 0 : balance
@@ -351,7 +351,7 @@
 		working = TRUE
 		var/mob/user_mob = ui?.user
 
-		var/list/result = get_metacoin_shop_controller().try_slot_spin(owner?.ckey, user_mob)
+		var/list/result = get_metacoin_controller().try_slot_spin(owner?.ckey, user_mob)
 
 		if(!result["ok"])
 			if(user_mob)
@@ -421,7 +421,7 @@
 
 	if(payout_amount >= METACOIN_SLOT_PAYOUT_LINE5)
 		var/winner_name = user_mob?.real_name || owner?.ckey || "Unknown"
-		get_metacoin_shop_controller().announce_slot_big_win(winner_name, payout_amount, jackpot_hit, user_mob)
+		get_metacoin_controller().announce_slot_big_win(winner_name, payout_amount, jackpot_hit, user_mob)
 
 	if(user_mob)
 		if(jackpot_hit)

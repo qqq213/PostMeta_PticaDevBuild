@@ -20,7 +20,7 @@ GLOBAL_DATUM(metacoins_controller, /datum/metacoins_controller)
 	if(.)
 		return
 	get_metacoins_controller()
-	get_metacoin_shop_controller()
+	get_metacoin_controller()
 
 /datum/metacoins_controller
 	var/list/roundstart_ready_ckeys = list()

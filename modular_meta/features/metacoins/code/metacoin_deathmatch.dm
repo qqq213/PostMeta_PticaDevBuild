@@ -8,7 +8,7 @@
 		return TRUE
 
 	var/to_pay = entry_fee - already_paid
-	var/datum/metacoin_shop_controller/shop = get_metacoin_shop_controller()
+	var/datum/metacoin_shop_controller/shop = get_metacoin_controller()
 	if(!shop)
 		to_chat(player, span_warning("Metacoin subsystem is unavailable."))
 		return FALSE
@@ -39,7 +39,7 @@
 		fees_paid -= target_ckey
 		return TRUE
 
-	var/datum/metacoin_shop_controller/shop = get_metacoin_shop_controller()
+	var/datum/metacoin_shop_controller/shop = get_metacoin_controller()
 	if(!shop || !shop.add_metacoins(target_ckey, paid_amount))
 		log_game("Deathmatch lobby [host] failed to refund [paid_amount] metacoins to [target_ckey].")
 		return FALSE
@@ -59,7 +59,7 @@
 
 	var/payout_amount = prize_pool
 	var/list/paid_snapshot = fees_paid?.Copy() || list()
-	var/datum/metacoin_shop_controller/shop = get_metacoin_shop_controller()
+	var/datum/metacoin_shop_controller/shop = get_metacoin_controller()
 
 	if(winner_ckey && shop?.add_metacoins(winner_ckey, payout_amount))
 		announce(span_boldnicegreen("[winner ? winner.real_name : winner_ckey] received [payout_amount] metacoins from the prize pool."))

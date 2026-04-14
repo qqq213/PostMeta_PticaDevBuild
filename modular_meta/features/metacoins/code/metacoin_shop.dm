@@ -1,12 +1,12 @@
 GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 
-/proc/get_metacoin_shop_controller()
+/proc/get_metacoin_controller()
 	if(!GLOB.metacoin_shop_controller)
 		GLOB.metacoin_shop_controller = new /datum/metacoin_shop_controller()
 		GLOB.metacoin_shop_controller.register_signals()
 	return GLOB.metacoin_shop_controller
 
-/proc/cmp_antag_role_ui(datum/metacoinshop/antag_role/a, datum/metacoinshop/antag_role/b)
+/proc/cmp_antag_role(datum/metacoinshop/antag_role/a, datum/metacoinshop/antag_role/b)
 	var/order_diff = cmp_numeric_asc(a.ui_order, b.ui_order)
 	if(order_diff)
 		return order_diff
@@ -42,7 +42,7 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 		return
 
 	signals_registered = TRUE
-	RegisterSignal(SSdcs, COMSIG_GLOB_JOB_AFTER_SPAWN, PROC_REF(on_job_after_spawn))
+	RegisterSignal(SSdcs, COMSIG_GLOB_JOB_AFTER_SPAWN, PROC_REF(on_spawn))
 	SSticker.OnRoundstart(CALLBACK(src, PROC_REF(on_round_start)))
 	SSticker.OnRoundend(CALLBACK(src, PROC_REF(on_round_end)))
 
@@ -50,24 +50,24 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 	preround_delivered_by_ckey = list()
 
 /datum/metacoin_shop_controller/proc/on_round_end()
-	refund_all_pending_antag_tokens()
+	refund_all_tokens()
 	preround_pending_by_ckey = list()
 	preround_delivered_by_ckey = list()
 	antag_token_pending_by_ckey = list()
 	antag_token_slots_left = 3
 
-/datum/metacoin_shop_controller/proc/is_preround_purchase_open()
+/datum/metacoin_shop_controller/proc/is_open()
 	if(!SSticker)
 		return FALSE
 	return SSticker.current_state == GAME_STATE_PREGAME
 
-/datum/metacoin_shop_controller/proc/get_antag_token_listing()
+/datum/metacoin_shop_controller/proc/get_token_listing()
 	return preround_catalog["antag_token"]
 
-/datum/metacoin_shop_controller/proc/get_antag_token_slots_left()
+/datum/metacoin_shop_controller/proc/get_token_slots()
 	return max(antag_token_slots_left, 0)
 
-/datum/metacoin_shop_controller/proc/get_antag_token_restricted_jobs()
+/datum/metacoin_shop_controller/proc/get_restricted_jobs()
 	var/static/list/antag_token_restricted_jobs = list(
 		JOB_CAPTAIN,
 		JOB_HEAD_OF_PERSONNEL,
@@ -94,26 +94,26 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 
 	return antag_token_restricted_jobs
 
-/datum/metacoin_shop_controller/proc/is_antag_token_restricted_job(job_title)
+/datum/metacoin_shop_controller/proc/is_restricted_job(job_title)
 	if(!job_title)
 		return FALSE
 
-	return job_title in get_antag_token_restricted_jobs()
+	return job_title in get_restricted_jobs()
 
-/datum/metacoin_shop_controller/proc/get_antag_token_restricted_job_preferences_for_client(client/target_client)
+/datum/metacoin_shop_controller/proc/get_restricted_prefs(client/target_client)
 	var/list/restricted_preferences = list()
 	var/list/job_preferences = target_client?.prefs?.job_preferences
 	if(!islist(job_preferences))
 		return restricted_preferences
 
-	for(var/job_title in get_antag_token_restricted_jobs())
+	for(var/job_title in get_restricted_jobs())
 		if(!isnull(job_preferences[job_title]))
 			restricted_preferences += job_title
 
 	return restricted_preferences
 
-/datum/metacoin_shop_controller/proc/get_antag_token_restricted_job_preferences_warning_for_client(client/target_client)
-	var/list/restricted_preferences = get_antag_token_restricted_job_preferences_for_client(target_client)
+/datum/metacoin_shop_controller/proc/get_restricted_warn(client/target_client)
+	var/list/restricted_preferences = get_restricted_prefs(target_client)
 	if(!length(restricted_preferences))
 		return null
 
@@ -126,7 +126,7 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 		for(var/role_path in subtypesof(/datum/metacoinshop/antag_role))
 			antag_roles += new role_path
 
-		antag_roles = sort_list(antag_roles, GLOBAL_PROC_REF(cmp_antag_role_ui))
+		antag_roles = sort_list(antag_roles, GLOBAL_PROC_REF(cmp_antag_role))
 
 	return antag_roles
 
@@ -140,7 +140,7 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 
 	return null
 
-/datum/metacoin_shop_controller/proc/get_antag_token_role_display_name(role_id)
+/datum/metacoin_shop_controller/proc/get_role_name(role_id)
 	if(!role_id)
 		return null
 
@@ -149,7 +149,7 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 		return null
 	return role.name
 
-/datum/metacoin_shop_controller/proc/dynamic_weight_has_positive_value(weight_setting)
+/datum/metacoin_shop_controller/proc/has_weight(weight_setting)
 	if(isnull(weight_setting))
 		return FALSE
 
@@ -163,7 +163,7 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 
 	return FALSE
 
-/datum/metacoin_shop_controller/proc/dynamic_resolve_min_pop(min_pop_setting, fallback_value)
+/datum/metacoin_shop_controller/proc/resolve_min_pop(min_pop_setting, fallback_value)
 	if(isnum(min_pop_setting))
 		return max(text2num("[min_pop_setting]"), 0)
 
@@ -179,7 +179,7 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 
 	return max(text2num("[fallback_value]"), 0)
 
-/datum/metacoin_shop_controller/proc/get_antag_token_role_block_info(target_ckey, role_id, datum/job/current_job = null)
+/datum/metacoin_shop_controller/proc/get_role_block(target_ckey, role_id, datum/job/current_job = null)
 	var/datum/metacoinshop/antag_role/role = get_antag_role(role_id)
 	if(!role)
 		return list("code" = "unknown_role")
@@ -188,7 +188,7 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 	if(target_ckey && is_banned_from(target_ckey, list(ROLE_SYNDICATE, role_ban_flag)))
 		return list("code" = "job_banned")
 
-	if(current_job && is_antag_token_restricted_job(current_job.title))
+	if(current_job && is_restricted_job(current_job.title))
 		return list(
 			"code" = "restricted_job",
 			"job_title" = current_job.title,
@@ -201,13 +201,13 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 		var/ruleset_tag = role.ruleset_tag
 		var/list/ruleset_config = SSdynamic.get_config()?[ruleset_tag]
 
-		if(!isnull(ruleset_config?["weight"]) && !dynamic_weight_has_positive_value(ruleset_config["weight"]))
+		if(!isnull(ruleset_config?["weight"]) && !has_weight(ruleset_config["weight"]))
 			return list("code" = "disabled_by_config")
 
 		if(!isnull(ruleset_config?["min_pop"]))
 			min_pop_setting = ruleset_config["min_pop"]
 
-	var/min_pop = dynamic_resolve_min_pop(min_pop_setting, default_min_pop)
+	var/min_pop = resolve_min_pop(min_pop_setting, default_min_pop)
 	var/current_population = length(GLOB.new_player_list)
 	if(current_population < min_pop)
 		return list(
@@ -218,7 +218,7 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 
 	return null
 
-/datum/metacoin_shop_controller/proc/get_antag_token_role_block_text(list/block_info)
+/datum/metacoin_shop_controller/proc/get_block_text(list/block_info)
 	if(!islist(block_info))
 		return null
 
@@ -242,12 +242,12 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 
 	return "Role is currently unavailable."
 
-/datum/metacoin_shop_controller/proc/get_antag_token_roles_ui_data(target_ckey)
+/datum/metacoin_shop_controller/proc/get_roles_ui(target_ckey)
 	var/list/roles_ui_data = list()
 
 	for(var/datum/metacoinshop/antag_role/role as anything in get_antag_roles())
 		var/role_id = role.id
-		var/list/block_info = get_antag_token_role_block_info(target_ckey, role_id)
+		var/list/block_info = get_role_block(target_ckey, role_id)
 
 		roles_ui_data += list(list(
 			"id" = role_id,
@@ -256,7 +256,7 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 			"prefIconClass" = role_id,
 			"fallbackIcon" = default_listing_fallback_icon,
 			"available" = isnull(block_info),
-			"unavailableReason" = get_antag_token_role_block_text(block_info),
+			"unavailableReason" = get_block_text(block_info),
 			"unavailableCode" = block_info?["code"],
 			"minPopCurrent" = block_info?["current_pop"],
 			"minPopRequired" = block_info?["required_pop"],
@@ -264,7 +264,7 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 
 	return roles_ui_data
 
-/datum/metacoin_shop_controller/proc/refund_antag_token_purchase(target_ckey, failure_text, mob/notify_mob)
+/datum/metacoin_shop_controller/proc/refund_token(target_ckey, failure_text, mob/notify_mob)
 	if(!target_ckey)
 		return FALSE
 
@@ -272,7 +272,7 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 		log_game("[src] antag token refund skipped for [target_ckey]: no pending reservation.")
 		return FALSE
 
-	var/datum/metacoinshop/listing/antag_listing = get_antag_token_listing()
+	var/datum/metacoinshop/listing/antag_listing = get_token_listing()
 	var/refund_amount = antag_listing?.price || 0
 
 	antag_token_pending_by_ckey -= target_ckey
@@ -293,36 +293,36 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 		notify_mob.playsound_local(notify_mob, 'sound/machines/compiler/compiler-failure.ogg', 40, TRUE, use_reverb = FALSE)
 	else
 		log_game("[src] antag token refund notify deferred for [target_ckey]: no client on notify mob.")
-		addtimer(CALLBACK(src, PROC_REF(retry_notify_antag_token_result), target_ckey, message, 20), 1 SECONDS)
+		addtimer(CALLBACK(src, PROC_REF(retry_refund_notice), target_ckey, message, 20), 1 SECONDS)
 
 	return TRUE
 
-/datum/metacoin_shop_controller/proc/retry_notify_antag_token_result(target_ckey, message, attempts_left)
+/datum/metacoin_shop_controller/proc/retry_refund_notice(target_ckey, message, attempts_left)
 	if(!target_ckey || !message)
 		return
 
 	var/mob/target_mob = get_mob_by_ckey(target_ckey)
 	if(!target_mob?.client)
 		if(attempts_left > 0)
-			addtimer(CALLBACK(src, PROC_REF(retry_notify_antag_token_result), target_ckey, message, attempts_left - 1), 0.5 SECONDS)
+			addtimer(CALLBACK(src, PROC_REF(retry_refund_notice), target_ckey, message, attempts_left - 1), 0.5 SECONDS)
 		return
 
 	to_chat(target_mob, span_warning(message))
 	target_mob.playsound_local(target_mob, 'sound/machines/compiler/compiler-failure.ogg', 40, TRUE, use_reverb = FALSE)
 
-/datum/metacoin_shop_controller/proc/refund_all_pending_antag_tokens()
+/datum/metacoin_shop_controller/proc/refund_all_tokens()
 	if(!length(antag_token_pending_by_ckey))
 		return
 
 	var/list/ckeys_to_refund = antag_token_pending_by_ckey.Copy()
 	for(var/target_ckey in ckeys_to_refund)
-		refund_antag_token_purchase(target_ckey, null, null)
+		refund_token(target_ckey, null, null)
 
-/datum/metacoin_shop_controller/proc/get_catalog_ui_data(target_ckey)
+/datum/metacoin_shop_controller/proc/get_catalog_ui(target_ckey)
 	var/list/catalog_data = list()
-	var/list/pending_items = get_pending_item_ids(target_ckey)
+	var/list/pending_items = get_pending_items(target_ckey)
 	var/selected_antag_role = antag_token_pending_by_ckey[target_ckey]
-	var/balance = fetch_metacoin_balance(target_ckey)
+	var/balance = fetch_balance(target_ckey)
 
 	for(var/listing_id in preround_catalog)
 		var/datum/metacoinshop/listing/listing = preround_catalog[listing_id]
@@ -350,15 +350,15 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 		)
 
 		if(is_antag_token)
-			listing_payload["tokensLeft"] = get_antag_token_slots_left()
+			listing_payload["tokensLeft"] = get_token_slots()
 			listing_payload["selectedRole"] = selected_antag_role
-			listing_payload["selectedRoleName"] = get_antag_token_role_display_name(selected_antag_role)
+			listing_payload["selectedRoleName"] = get_role_name(selected_antag_role)
 
 		catalog_data += list(listing_payload)
 
 	return catalog_data
 
-/datum/metacoin_shop_controller/proc/get_pending_item_ids(target_ckey)
+/datum/metacoin_shop_controller/proc/get_pending_items(target_ckey)
 	if(!target_ckey)
 		return list()
 
@@ -368,7 +368,7 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 
 	return pending_items.Copy()
 
-/datum/metacoin_shop_controller/proc/fetch_metacoin_balance(target_ckey)
+/datum/metacoin_shop_controller/proc/fetch_balance(target_ckey)
 	if(!target_ckey)
 		return 0
 
@@ -423,7 +423,7 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 	if(!SSdbcore.Connect())
 		return list("ok" = FALSE, "error" = "db_unavailable")
 
-	var/current_balance = fetch_metacoin_balance(target_ckey)
+	var/current_balance = fetch_balance(target_ckey)
 	if(isnull(current_balance))
 		return list("ok" = FALSE, "error" = "db_unavailable")
 
@@ -444,7 +444,7 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 		return list("ok" = FALSE, "error" = "db_failed")
 	qdel(take_query)
 
-	var/new_balance = fetch_metacoin_balance(target_ckey)
+	var/new_balance = fetch_balance(target_ckey)
 	if(isnull(new_balance))
 		return list("ok" = FALSE, "error" = "db_failed")
 
@@ -456,11 +456,11 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 		"balance" = new_balance,
 	)
 
-/datum/metacoin_shop_controller/proc/try_purchase_preround_item(target_ckey, item_id)
+/datum/metacoin_shop_controller/proc/buy_item(target_ckey, item_id)
 	if(!target_ckey || !item_id)
 		return list("ok" = FALSE, "error" = "invalid_request")
 
-	if(!is_preround_purchase_open())
+	if(!is_open())
 		return list("ok" = FALSE, "error" = "shop_closed")
 
 	var/datum/metacoinshop/listing/listing = preround_catalog[item_id]
@@ -481,7 +481,7 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 	if(!SSdbcore.Connect())
 		return list("ok" = FALSE, "error" = "db_unavailable")
 
-	var/current_balance = fetch_metacoin_balance(target_ckey)
+	var/current_balance = fetch_balance(target_ckey)
 	if(isnull(current_balance))
 		return list("ok" = FALSE, "error" = "db_unavailable")
 
@@ -502,7 +502,7 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 		return list("ok" = FALSE, "error" = "db_failed")
 	qdel(buy_query)
 
-	var/new_balance = fetch_metacoin_balance(target_ckey)
+	var/new_balance = fetch_balance(target_ckey)
 	if(isnull(new_balance))
 		return list("ok" = FALSE, "error" = "db_failed")
 
@@ -519,31 +519,31 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 
 	return list("ok" = TRUE)
 
-/datum/metacoin_shop_controller/proc/try_purchase_antag_token(target_ckey, role_id)
+/datum/metacoin_shop_controller/proc/buy_token(target_ckey, role_id)
 	if(!target_ckey || !role_id)
 		return list("ok" = FALSE, "error" = "invalid_request")
 
-	if(!is_preround_purchase_open())
+	if(!is_open())
 		return list("ok" = FALSE, "error" = "shop_closed")
 
 	if(antag_token_pending_by_ckey[target_ckey])
 		return list("ok" = FALSE, "error" = "already_owned")
 
-	if(get_antag_token_slots_left() <= 0)
+	if(get_token_slots() <= 0)
 		return list("ok" = FALSE, "error" = "sold_out")
 
-	var/list/block_info = get_antag_token_role_block_info(target_ckey, role_id)
+	var/list/block_info = get_role_block(target_ckey, role_id)
 	if(block_info)
 		return list("ok" = FALSE, "error" = block_info["code"])
 
-	var/datum/metacoinshop/listing/listing = get_antag_token_listing()
+	var/datum/metacoinshop/listing/listing = get_token_listing()
 	if(!listing)
 		return list("ok" = FALSE, "error" = "unknown_item")
 
 	if(!SSdbcore.Connect())
 		return list("ok" = FALSE, "error" = "db_unavailable")
 
-	var/current_balance = fetch_metacoin_balance(target_ckey)
+	var/current_balance = fetch_balance(target_ckey)
 	if(isnull(current_balance))
 		return list("ok" = FALSE, "error" = "db_unavailable")
 
@@ -564,7 +564,7 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 		return list("ok" = FALSE, "error" = "db_failed")
 	qdel(buy_query)
 
-	var/new_balance = fetch_metacoin_balance(target_ckey)
+	var/new_balance = fetch_balance(target_ckey)
 	if(isnull(new_balance))
 		return list("ok" = FALSE, "error" = "db_failed")
 
@@ -573,7 +573,7 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 
 	antag_token_pending_by_ckey[target_ckey] = role_id
 	antag_token_slots_left = max(antag_token_slots_left - 1, 0)
-	var/role_name = get_antag_token_role_display_name(role_id)
+	var/role_name = get_role_name(role_id)
 	log_game("[src] antag token purchase: ckey=[target_ckey], role=[role_id]/[role_name], price=[listing.price], balance_before=[current_balance], balance_after=[new_balance], slots_left=[antag_token_slots_left].")
 
 	var/mob/player_mob = get_mob_by_ckey(target_ckey)
@@ -603,7 +603,7 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 
 	return conflicts
 
-/datum/metacoin_shop_controller/proc/try_grant_antag_token_after_spawn(target_ckey, mob/living/spawned, client/player_client)
+/datum/metacoin_shop_controller/proc/grant_token_on_spawn(target_ckey, mob/living/spawned, client/player_client)
 	if(!target_ckey)
 		return
 
@@ -625,31 +625,31 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 			log_rulesets = "unknown"
 		var/failure_text = "Antag token was refunded due to Dynamic subsystem role assignment ([conflict_text])."
 		log_game("[src] antag token grant canceled for [target_ckey]: code=dynamic_interference, role=[selected_role], rulesets=[log_rulesets], job=[current_job?.title].")
-		refund_antag_token_purchase(target_ckey, failure_text, notify_mob)
+		refund_token(target_ckey, failure_text, notify_mob)
 		return
 
-	var/list/block_info = get_antag_token_role_block_info(target_ckey, selected_role, current_job)
+	var/list/block_info = get_role_block(target_ckey, selected_role, current_job)
 	if(block_info)
-		var/failure_text = "Antag token could not be applied: [get_antag_token_role_block_text(block_info)]"
+		var/failure_text = "Antag token could not be applied: [get_block_text(block_info)]"
 		log_game("[src] antag token grant blocked for [target_ckey]: code=[block_info["code"]], job=[current_job?.title].")
-		refund_antag_token_purchase(target_ckey, failure_text, notify_mob)
+		refund_token(target_ckey, failure_text, notify_mob)
 		return
 
 	if(!ishuman(spawned))
 		log_game("[src] antag token grant failed for [target_ckey]: spawned mob is not human ([spawned?.type]).")
-		refund_antag_token_purchase(target_ckey, "Antag token requires a human roundstart spawn.", notify_mob)
+		refund_token(target_ckey, "Antag token requires a human roundstart spawn.", notify_mob)
 		return
 
 	var/mob/living/carbon/human/human_spawned = spawned
 	if(!human_spawned.mind)
 		log_game("[src] antag token grant failed for [target_ckey]: human has no mind.")
-		refund_antag_token_purchase(target_ckey, "Antag token failed: no valid player mind found.", notify_mob)
+		refund_token(target_ckey, "Antag token failed: no valid player mind found.", notify_mob)
 		return
 
 	var/datum/metacoinshop/antag_role/role = get_antag_role(selected_role)
 	if(!role)
 		log_game("[src] antag token grant failed for [target_ckey]: invalid role definition '[selected_role]'.")
-		refund_antag_token_purchase(target_ckey, "Antag token failed: selected role is invalid.", notify_mob)
+		refund_token(target_ckey, "Antag token failed: selected role is invalid.", notify_mob)
 		return
 
 	var/antag_datum_path = role.antag_datum
@@ -660,10 +660,10 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 	var/datum/antagonist/granted_antag = human_spawned.mind.has_antag_datum(antag_datum_path, TRUE)
 	if(!granted_antag)
 		log_game("[src] antag token grant failed for [target_ckey]: antag datum [antag_datum_path] not present after add.")
-		refund_antag_token_purchase(target_ckey, "Antag token failed to grant the selected role.", notify_mob)
+		refund_token(target_ckey, "Antag token failed to grant the selected role.", notify_mob)
 		return
 
-	addtimer(CALLBACK(src, PROC_REF(retry_show_antag_token_intro), target_ckey, granted_antag, 20), 1 SECONDS)
+	addtimer(CALLBACK(src, PROC_REF(retry_intro), target_ckey, granted_antag, 20), 1 SECONDS)
 
 	antag_token_pending_by_ckey -= target_ckey
 	log_game("[src] antag token grant success for [target_ckey]: role=[selected_role], slots_left=[antag_token_slots_left].")
@@ -676,7 +676,7 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 	*/
 	SStgui.update_uis(src)
 
-/datum/metacoin_shop_controller/proc/retry_show_antag_token_intro(target_ckey, datum/antagonist/granted_antag, attempts_left)
+/datum/metacoin_shop_controller/proc/retry_intro(target_ckey, datum/antagonist/granted_antag, attempts_left)
 	if(!target_ckey || !granted_antag || QDELETED(granted_antag))
 		return
 
@@ -686,13 +686,13 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 
 	if(!player_mob?.client)
 		if(attempts_left > 0)
-			addtimer(CALLBACK(src, PROC_REF(retry_show_antag_token_intro), target_ckey, granted_antag, attempts_left - 1), 0.5 SECONDS)
+			addtimer(CALLBACK(src, PROC_REF(retry_intro), target_ckey, granted_antag, attempts_left - 1), 0.5 SECONDS)
 		return
 
 	var/datum/action/antag_info/info_button = granted_antag.info_button_ref?.resolve()
 	if(granted_antag.ui_name && !info_button)
 		if(attempts_left > 0)
-			addtimer(CALLBACK(src, PROC_REF(retry_show_antag_token_intro), target_ckey, granted_antag, attempts_left - 1), 0.5 SECONDS)
+			addtimer(CALLBACK(src, PROC_REF(retry_intro), target_ckey, granted_antag, attempts_left - 1), 0.5 SECONDS)
 		return
 
 	granted_antag.silent = FALSE
@@ -706,7 +706,7 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 	if(type_policy)
 		to_chat(player_mob, type_policy)
 
-/datum/metacoin_shop_controller/proc/on_job_after_spawn(datum/source, datum/job/job, mob/living/spawned, client/player_client)
+/datum/metacoin_shop_controller/proc/on_spawn(datum/source, datum/job/job, mob/living/spawned, client/player_client)
 	SIGNAL_HANDLER
 
 	if(!player_client)
@@ -715,16 +715,16 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 	var/target_ckey = ckey(player_client.ckey)
 	var/selected_role = antag_token_pending_by_ckey[target_ckey]
 	if(selected_role)
-		log_game("[src] on_job_after_spawn for token owner [target_ckey]: role=[selected_role], state=[SSticker?.current_state], round_started=[SSticker?.HasRoundStarted()], job=[job?.title], assigned=[spawned?.mind?.assigned_role?.title].")
+		log_game("[src] on_spawn for token owner [target_ckey]: role=[selected_role], state=[SSticker?.current_state], round_started=[SSticker?.HasRoundStarted()], job=[job?.title], assigned=[spawned?.mind?.assigned_role?.title].")
 
 	if(SSticker?.HasRoundStarted())
 		if(selected_role)
-			log_game("[src] skipping antag token grant for [target_ckey]: round already started in on_job_after_spawn.")
+			log_game("[src] skipping antag token grant for [target_ckey]: round already started in on_spawn.")
 		return
 	if(!target_ckey)
 		return
 
-	try_grant_antag_token_after_spawn(target_ckey, spawned, player_client)
+	grant_token_on_spawn(target_ckey, spawned, player_client)
 
 	if(!ishuman(spawned))
 		return
@@ -778,13 +778,13 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 /datum/metacoin_shop_panel/ui_data(mob/user)
 	var/list/data = list()
 	var/client_ckey = owner?.ckey
-	var/datum/metacoin_shop_controller/shop = get_metacoin_shop_controller()
-	var/balance = shop.fetch_metacoin_balance(client_ckey)
+	var/datum/metacoin_shop_controller/shop = get_metacoin_controller()
+	var/balance = shop.fetch_balance(client_ckey)
 
-	data["isPregame"] = shop.is_preround_purchase_open()
+	data["isPregame"] = shop.is_open()
 	data["balance"] = isnull(balance) ? 0 : balance
-	data["antagTokenSlotsLeft"] = shop.get_antag_token_slots_left()
-	data["preroundItems"] = shop.get_catalog_ui_data(client_ckey)
+	data["antagTokenSlotsLeft"] = shop.get_token_slots()
+	data["preroundItems"] = shop.get_catalog_ui(client_ckey)
 	data["persistentItems"] = list()
 
 	return data
@@ -807,7 +807,7 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 		if(!target_item)
 			return FALSE
 
-		var/result = get_metacoin_shop_controller().try_purchase_preround_item(owner?.ckey, target_item)
+		var/result = get_metacoin_controller().buy_item(owner?.ckey, target_item)
 		if(!result["ok"])
 			var/mob/user_mob = ui?.user
 			if(user_mob)
@@ -857,21 +857,21 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 /datum/metacoin_antag_token_panel/ui_data(mob/user)
 	var/list/data = list()
 	var/client_ckey = owner?.ckey
-	var/datum/metacoin_shop_controller/shop = get_metacoin_shop_controller()
-	var/balance = shop.fetch_metacoin_balance(client_ckey)
+	var/datum/metacoin_shop_controller/shop = get_metacoin_controller()
+	var/balance = shop.fetch_balance(client_ckey)
 	var/selected_role = shop.antag_token_pending_by_ckey[client_ckey]
-	var/datum/metacoinshop/listing/antag_listing = shop.get_antag_token_listing()
+	var/datum/metacoinshop/listing/antag_listing = shop.get_token_listing()
 
-	data["isPregame"] = shop.is_preround_purchase_open()
+	data["isPregame"] = shop.is_open()
 	data["balance"] = isnull(balance) ? 0 : balance
 	data["price"] = antag_listing?.price || 40
-	data["slotsLeft"] = shop.get_antag_token_slots_left()
+	data["slotsLeft"] = shop.get_token_slots()
 	data["alreadyPurchased"] = !isnull(selected_role)
 	data["selectedRole"] = selected_role
-	data["selectedRoleName"] = shop.get_antag_token_role_display_name(selected_role)
-	data["roles"] = shop.get_antag_token_roles_ui_data(client_ckey)
-	data["restrictedJobPreferences"] = shop.get_antag_token_restricted_job_preferences_for_client(owner)
-	data["restrictedJobWarning"] = shop.get_antag_token_restricted_job_preferences_warning_for_client(owner)
+	data["selectedRoleName"] = shop.get_role_name(selected_role)
+	data["roles"] = shop.get_roles_ui(client_ckey)
+	data["restrictedJobPreferences"] = shop.get_restricted_prefs(owner)
+	data["restrictedJobWarning"] = shop.get_restricted_warn(owner)
 
 	return data
 
@@ -885,7 +885,7 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 		if(!role_id)
 			return FALSE
 
-		var/result = get_metacoin_shop_controller().try_purchase_antag_token(owner?.ckey, role_id)
+		var/result = get_metacoin_controller().buy_token(owner?.ckey, role_id)
 		if(result["ok"])
 			return TRUE
 
