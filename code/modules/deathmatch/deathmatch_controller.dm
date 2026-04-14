@@ -52,7 +52,7 @@
 	lobbies[host.ckey] = new_lobby
 	deadchat_broadcast(" has opened a new deathmatch lobby. <a href=byond://?src=[REF(new_lobby)];join=1>(Join)</a>", "<B>[host]</B>")
 	return list("ok" = TRUE)
-//MASSMETA EDIT CHANGE START (metacoins)
+//MASSMETA EDIT CHANGE END (metacoins)
 
 /datum/deathmatch_controller/proc/remove_lobby(ckey)
 	var/lobby = lobbies[ckey]
