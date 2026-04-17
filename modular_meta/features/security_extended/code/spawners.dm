@@ -8,7 +8,7 @@
 /obj/effect/spawner/random/baton_or_tonfa
 	name = "baton or tonfa spawner"
 	loot = list(
-		/obj/item/melee/baton/security = 2,
+		/obj/item/melee/baton/security/loaded = 2,
 		/obj/item/melee/tonfa = 1,
 	)
 
