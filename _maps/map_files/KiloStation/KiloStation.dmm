@@ -12791,8 +12791,6 @@
 /obj/structure/disposalpipe/segment{
 	dir = 4
 	},
-/obj/effect/turf_decal/caution/stand_clear,
-/obj/machinery/door/firedoor,
 /obj/structure/cable,
 /obj/machinery/atmospherics/pipe/smart/manifold4w/supply/hidden/layer4,
 /obj/machinery/atmospherics/pipe/smart/manifold4w/scrubbers/hidden/layer2,
@@ -20493,8 +20491,6 @@
 	name = "Front Security Blast Door"
 	},
 /obj/structure/extinguisher_cabinet/directional/north,
-/obj/effect/turf_decal/caution/stand_clear,
-/obj/machinery/door/firedoor,
 /turf/open/floor/iron/dark,
 /area/station/security/brig)
 "gKd" = (
@@ -43030,8 +43026,9 @@
 	id = "brigfrontdoor";
 	name = "Front Security Blast Door"
 	},
-/obj/effect/turf_decal/caution/stand_clear,
-/obj/machinery/door/firedoor,
+/obj/effect/turf_decal/caution/stand_clear{
+	dir = 4
+	},
 /turf/open/floor/iron/dark,
 /area/station/security/brig)
 "odd" = (
@@ -55359,14 +55356,10 @@
 /turf/open/floor/circuit/green/telecomms/mainframe,
 /area/station/tcommsat/server)
 "shC" = (
-/obj/machinery/door/airlock/security/glass{
-	id_tag = "innerbrig";
-	name = "Brig"
+/obj/machinery/turnstile/brig{
+	dir = 8
 	},
-/obj/effect/mapping_helpers/airlock/cyclelink_helper_multi{
-	cycle_id = "brig-entrance-right"
-	},
-/obj/effect/mapping_helpers/airlock/access/all/security/entrance,
+/obj/machinery/door/firedoor,
 /turf/open/floor/iron/dark,
 /area/station/security/brig)
 "shE" = (
@@ -67866,6 +67859,7 @@
 /obj/machinery/atmospherics/pipe/smart/manifold4w/supply/hidden/layer4,
 /obj/machinery/atmospherics/pipe/smart/manifold4w/scrubbers/hidden/layer2,
 /obj/effect/mapping_helpers/airlock/access/all/security/entrance,
+/obj/machinery/door/firedoor,
 /turf/open/floor/iron/dark,
 /area/station/security/brig)
 "was" = (
@@ -71754,17 +71748,6 @@
 /obj/machinery/atmospherics/pipe/smart/manifold4w/supply/hidden/layer4,
 /turf/open/floor/grass,
 /area/station/medical/psychology)
-"xmO" = (
-/obj/machinery/door/airlock/security/glass{
-	id_tag = "outerbrig";
-	name = "Brig"
-	},
-/obj/effect/mapping_helpers/airlock/cyclelink_helper_multi{
-	cycle_id = "brig-entrance-right"
-	},
-/obj/effect/mapping_helpers/airlock/access/all/security/entrance,
-/turf/open/floor/iron/dark,
-/area/station/security/brig)
 "xmQ" = (
 /obj/machinery/door/airlock/external{
 	name = "External Airlock"
@@ -98129,7 +98112,7 @@ lYG
 lOY
 weR
 hAP
-xmO
+shC
 sFF
 war
 rhd
