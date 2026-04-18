@@ -105,7 +105,7 @@
 	reward = METACOIN_AWARD_SMALL
 
 /datum/award/score/style_score
-	reward = METACOIN_AWARD_SMALL
+	reward = METACOIN_AWARD_NONE
 
 /datum/award/score/drake_score
 	reward = METACOIN_AWARD_SMALL
