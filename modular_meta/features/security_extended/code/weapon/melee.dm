@@ -22,14 +22,15 @@
 	w_class = WEIGHT_CLASS_HUGE
 	hitsound = 'sound/effects/woodhit.ogg'
 	custom_price = PAYCHECK_COMMAND
+	armour_penetration = -15
 	/// Damage dealt while on help intent
 	var/non_harm_force = 3
 	/// Stamina damage dealt
 	var/stamina_force = 25
 
 /obj/item/melee/tonfa/attack(mob/living/target, mob/living/user)
-	var/target_zone = user.log_manual_zone_selected_update(target)
-	var/armour_level = target.getarmor(target_zone, STAMINA, penetration = armour_penetration - 15)
+	var/target_zone = user.zone_selected == target
+	var/armour_level = target.getarmor(target_zone)
 
 	add_fingerprint(user)
 	if((HAS_TRAIT(user, TRAIT_CLUMSY)) && prob(50))
@@ -67,7 +68,7 @@
 		log_combat(user, target, "attacked", src)
 
 		// If the target has a lot of stamina loss, knock them down
-		if ((user.log_manual_zone_selected_update(BODY_ZONE_L_LEG) || user.log_manual_zone_selected_update(BODY_ZONE_R_LEG)) && target.get_stamina_loss() > 22)
+		if (user.zone_selected == BODY_ZONE_L_LEG || user.zone_selected == BODY_ZONE_R_LEG && target.get_stamina_loss() > 22)
 			var/effectiveness = CLAMP01((target.get_stamina_loss() - 22) / 50)
 			log_combat(user, target, "knocked-down", src, "(additional effect)")
 			// Move the target back upon knockdown, to give them some time to recover
@@ -80,7 +81,7 @@
 			else
 				target.Knockdown(effectiveness * 4 SECONDS * (100-armour_level)/100)
 			target.Move(target_shove_turf, shove_dir)
-		if (user.log_manual_zone_selected_update(BODY_ZONE_L_LEG) || user.log_manual_zone_selected_update(BODY_ZONE_R_LEG) || user.log_manual_zone_selected_update(BODY_ZONE_L_ARM) || user.log_manual_zone_selected_update(BODY_ZONE_R_ARM))
+		if (user.zone_selected == BODY_ZONE_L_LEG || user.zone_selected == BODY_ZONE_R_LEG || user.zone_selected == BODY_ZONE_L_ARM || user.zone_selected == BODY_ZONE_R_ARM)
 			// 4-5 hits on an unarmoured target
 			target.apply_damage(stamina_force*0.6, STAMINA, target_zone, armour_level)
 		else
