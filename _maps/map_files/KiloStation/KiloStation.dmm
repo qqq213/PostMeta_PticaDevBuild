@@ -30529,6 +30529,10 @@
 /obj/structure/disposalpipe/trunk{
 	dir = 8
 	},
+/obj/machinery/keycard_auth/wall_mounted/directional/east{
+	pixel_x = 32;
+	pixel_y = 5
+	},
 /turf/open/floor/iron/dark,
 /area/station/command/heads_quarters/hos)
 "jQh" = (
@@ -38396,6 +38400,10 @@
 /obj/effect/landmark/start/research_director,
 /obj/effect/turf_decal/tile/purple,
 /obj/effect/turf_decal/tile/purple/half/contrasted,
+/obj/machinery/keycard_auth/wall_mounted/directional/west{
+	pixel_x = -31;
+	pixel_y = 6
+	},
 /turf/open/floor/iron/showroomfloor,
 /area/station/command/heads_quarters/rd)
 "mtw" = (
@@ -65698,6 +65706,7 @@
 /obj/effect/turf_decal/tile/neutral/half/contrasted{
 	dir = 8
 	},
+/obj/machinery/keycard_auth/wall_mounted/directional/east,
 /turf/open/floor/iron/dark,
 /area/station/command/heads_quarters/captain)
 "vrq" = (
@@ -68574,6 +68583,7 @@
 /obj/item/papercutter{
 	pixel_x = -4
 	},
+/obj/machinery/keycard_auth/wall_mounted/directional/north,
 /turf/open/floor/iron/dark,
 /area/station/command/heads_quarters/hop)
 "wgX" = (
@@ -70480,6 +70490,10 @@
 	},
 /obj/effect/turf_decal/tile/blue,
 /obj/effect/turf_decal/tile/blue/anticorner/contrasted,
+/obj/machinery/keycard_auth/wall_mounted/directional/south{
+	pixel_x = 0;
+	pixel_y = -30
+	},
 /turf/open/floor/iron/showroomfloor,
 /area/station/command/heads_quarters/cmo)
 "wKb" = (
@@ -71017,6 +71031,10 @@
 /turf/open/floor/plating,
 /area/station/maintenance/starboard/aft)
 "wTU" = (
+/obj/machinery/keycard_auth/wall_mounted/directional/east{
+	pixel_x = 26;
+	pixel_y = -5
+	},
 /turf/open/floor/carpet/orange,
 /area/station/command/heads_quarters/qm)
 "wUU" = (
@@ -71759,6 +71777,7 @@
 	},
 /obj/item/radio/intercom/directional/east,
 /mob/living/basic/parrot/poly,
+/obj/machinery/keycard_auth/wall_mounted/directional/north,
 /turf/open/floor/iron/dark,
 /area/station/command/heads_quarters/ce)
 "xjr" = (
