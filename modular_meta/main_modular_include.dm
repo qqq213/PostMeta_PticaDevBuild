@@ -50,6 +50,7 @@
 #include "features\bot_topic\includes.dm"
 #include "features\metacoins\includes.dm"
 #include "features\spaceman_races\includes.dm"
+#include "features\meta_redesign\includes.dm"
 
 /* --- Reverts --- */
 
