@@ -21,7 +21,7 @@ then have it variable edit'ed like so item.force = 25, potentially escaping any 
 
 /datum/metacoinshop/listing/proc/persistent_grant(datum/metacoin_shop_controller/shop, target_ckey, mob/living/spawned, client/player_client)
 	return
-// it's persistenly repeated code on each round if the ss.db.query() returns true whether something's been bought, use it for any effects on demand
+// it's persistenly repeated code on each round if the SSdb returns true whether something's been bought, use it for any effects on demand
 // later on we'll add a preference flag to disable bought items on demand
 
 /datum/metacoinshop/listing/preround
