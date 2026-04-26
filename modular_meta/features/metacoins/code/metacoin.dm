@@ -81,7 +81,7 @@ GLOBAL_DATUM(metacoins_controller, /datum/metacoins_controller)
 /// * reason - reason shown in reward chat message.
 /// * allow_repeat - If TRUE, skips source dedupe and allows payout on every call.
 /// * resolve_from_award_type - If TRUE, reward_value is resolved through the award datum's reward var.
-/// * sound - If TRUE plays a sound, check notify_player_reward_awarded
+/// * sound - If TRUE plays a sound, check notify_reward
 /// Returns TRUE when payout is persisted, FALSE otherwise.
 /datum/metacoins_controller/proc/award_metacoins(target_ckey, reward_value, source, reason, allow_repeat = FALSE, resolve_from_award_type = FALSE, sound = TRUE)
 	var/amount
@@ -152,7 +152,7 @@ GLOBAL_DATUM(metacoins_controller, /datum/metacoins_controller)
 	for(var/list/reward_entry as anything in pay_rewards)
 		add_round_award_log_entry(target_ckey, reward_entry["amount"], reward_entry["source"], reward_entry["reason"])
 
-	notify_player_reward_awarded(target_ckey, total_amount, pay_rewards, sound)
+	notify_reward(target_ckey, total_amount, pay_rewards, sound)
 
 	var/mob/player_mob = get_mob_by_ckey(target_ckey)
 	if(player_mob)
@@ -293,13 +293,13 @@ GLOBAL_DATUM(metacoins_controller, /datum/metacoins_controller)
 			return TRUE
 		if(antag_datum.antag_flags & ANTAG_FAKE)
 			continue
-		if(!is_antag_objectives_successful(antag_datum))
+		if(!is_greentext(antag_datum))
 			continue
 		return TRUE
 
 	return FALSE
 
-/datum/metacoins_controller/proc/is_antag_objectives_successful(datum/antagonist/antag_datum)
+/datum/metacoins_controller/proc/is_greentext(datum/antagonist/antag_datum)
 	if(!antag_datum)
 		return FALSE
 
@@ -312,7 +312,7 @@ GLOBAL_DATUM(metacoins_controller, /datum/metacoins_controller)
 
 	return TRUE
 
-/datum/metacoins_controller/proc/notify_player_reward_awarded(target_ckey, total_reward, list/reward_entries, sound = TRUE)
+/datum/metacoins_controller/proc/notify_reward(target_ckey, total_reward, list/reward_entries, sound = TRUE)
 	if(total_reward <= 0)
 		return
 
@@ -378,7 +378,7 @@ GLOBAL_DATUM(metacoins_controller, /datum/metacoins_controller)
 	data["roundAwardLog"] = client_ckey ? controller.get_round_award_log(client_ckey) : list()
 	data["canOpenShop"] = TRUE
 
-	var/balance = fetch_metacoin_balance(client_ckey)
+	var/balance = fetch_balance(client_ckey)
 	data["dbConnected"] = !isnull(balance)
 	data["balance"] = isnull(balance) ? 0 : balance
 
@@ -395,7 +395,7 @@ GLOBAL_DATUM(metacoins_controller, /datum/metacoins_controller)
 
 	return FALSE
 
-/datum/metacoins_panel/proc/fetch_metacoin_balance(target_ckey)
+/datum/metacoins_panel/proc/fetch_balance(target_ckey)
 	if(!target_ckey)
 		return 0
 
@@ -441,7 +441,7 @@ ADMIN_VERB(mc_give, R_ADMIN, "Grant Metacoins", "Grant metacoins to a target cke
 	if(!length(grant_reason))
 		grant_reason = "Manual admin grant"
 
-	var/create_note = tgui_alert(user, "Include a note?", "Grant Metacoins", list("No", "Yes")) == "Yes"
+	// var/create_note = tgui_alert(user, "Include a note?", "Grant Metacoins", list("No", "Yes")) == "Yes"
 
 	var/datum/metacoins_controller/controller = get_metacoins_controller()
 	if(!controller)
@@ -458,15 +458,15 @@ ADMIN_VERB(mc_give, R_ADMIN, "Grant Metacoins", "Grant metacoins to a target cke
 		log_admin("[key_name(user)] failed to grant [amount] metacoins to [target_ckey]. Reason='[grant_reason]'.")
 		to_chat(user, span_warning("Failed to grant metacoins. Check SQL logs"), confidential = TRUE)
 		return
-
+/* // i've thought about it, that's kinda useless
 	if(create_note)
 		var/note_text = "Metacoins granted: +[amount]. Reason: [grant_reason]"
 		create_message("note", target_ckey, user.ckey, note_text, null, null, 0, 0, null, 0, "none")
-
-	var/admin_msg = "[key_name_admin(user)] granted [amount] metacoins to [target_ckey]. Reason='[grant_reason]'. Auto-note=[create_note ? "yes" : "no"]."
+*/
+	var/admin_msg = "[key_name_admin(user)] granted [amount] metacoins to [target_ckey]. Reason='[grant_reason]']."
 	message_admins(admin_msg)
-	log_admin("[key_name(user)] granted [amount] metacoins to [target_ckey]. Reason='[grant_reason]'. Auto-note=[create_note ? "yes" : "no"].")
-	log_game("[key_name(user)] granted [amount] metacoins to [target_ckey]. Reason='[grant_reason]'. Auto-note=[create_note ? "yes" : "no"].")
+	log_admin("[key_name(user)] granted [amount] metacoins to [target_ckey]. Reason='[grant_reason]'.")
+	log_game("[key_name(user)] granted [amount] metacoins to [target_ckey]. Reason='[grant_reason]'].")
 
 /client/verb/view_metacoins()
 	set name = "View Metacoins"

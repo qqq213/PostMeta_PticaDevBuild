@@ -382,7 +382,7 @@
 			if(user_mob)
 				switch(result["error"])
 					if("shop_closed")
-						to_chat(user_mob, span_warning("Metacoin slot machine is available only before round start."))
+						to_chat(user_mob, span_warning("Metacoin slot machine is available only for ghosts and in pre-game lobby."))
 					if("invalid_bet")
 						to_chat(user_mob, span_warning("Invalid bet selected."))
 					if("not_enough")
