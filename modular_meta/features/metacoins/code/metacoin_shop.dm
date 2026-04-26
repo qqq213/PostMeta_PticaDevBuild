@@ -76,7 +76,7 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 	return preround_catalog["antag_token"]
 
 /datum/metacoin_shop_controller/proc/get_token_slots()
-	return max(antag_token_slots_left, 0)
+	return antag_token_slots_left
 
 /datum/metacoin_shop_controller/proc/get_restricted_jobs()
 	var/static/list/antag_token_restricted_jobs = list(
@@ -165,30 +165,30 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 		return FALSE
 
 	if(isnum(weight_setting))
-		return text2num("[weight_setting]") > 0
+		return weight_setting > 0
 
 	if(islist(weight_setting))
 		for(var/key in weight_setting)
-			if(text2num("[weight_setting[key]]") > 0)
+			if(weight_setting[key] > 0)
 				return TRUE
 
 	return FALSE
 
 /datum/metacoin_shop_controller/proc/resolve_min_pop(min_pop_setting, fallback_value)
 	if(isnum(min_pop_setting))
-		return max(text2num("[min_pop_setting]"), 0)
+		return min_pop_setting
 
 	if(islist(min_pop_setting))
 		var/best_value
 		for(var/key in min_pop_setting)
-			var/current_value = max(text2num("[min_pop_setting[key]]"), 0)
+			var/current_value = min_pop_setting[key]
 			if(isnull(best_value) || current_value < best_value)
 				best_value = current_value
 
 		if(!isnull(best_value))
 			return best_value
 
-	return max(text2num("[fallback_value]"), 0)
+	return fallback_value
 
 /datum/metacoin_shop_controller/proc/get_role_block(target_ckey, role_id, datum/job/current_job = null)
 	var/datum/metacoinshop/antag_role/role = get_antag_role(role_id)
@@ -424,7 +424,7 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 
 	var/is_owned = FALSE
 	if(select_query.NextRow(async = FALSE))
-		is_owned = text2num("[select_query.item[1]]") > 0
+		is_owned = select_query.item[1] > 0
 
 	qdel(select_query)
 	return is_owned
@@ -502,7 +502,7 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 
 	var/metacoin_balance = 0
 	if(select_query.NextRow(async = FALSE))
-		metacoin_balance = text2num(select_query.item[1]) || 0
+		metacoin_balance = select_query.item[1]
 
 	qdel(select_query)
 	return metacoin_balance
@@ -663,7 +663,7 @@ GLOBAL_DATUM(metacoin_shop_controller, /datum/metacoin_shop_controller)
 		return take
 
 	antag_token_pending_by_ckey[target_ckey] = role_id
-	antag_token_slots_left = max(antag_token_slots_left - 1, 0)
+	antag_token_slots_left--
 	var/role_name = get_role_name(role_id)
 	var/balance_after = take["balance"]
 	log_game("[src] antag token purchase: ckey=[target_ckey], role=[role_id]/[role_name], price=[listing.price], balance_after=[balance_after], slots_left=[antag_token_slots_left].")
