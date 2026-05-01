@@ -5003,7 +5003,7 @@
 /obj/effect/turf_decal/tile/neutral/half/contrasted,
 /obj/structure/closet/secure_closet/paramedic,
 /obj/effect/turf_decal/bot_white,
-/turf/open/floor/iron/dark,
+/turf/open/floor/iron/dark/smooth_half,
 /area/station/medical/paramedic)
 "bLf" = (
 /obj/effect/turf_decal/tile/purple/anticorner/contrasted{
@@ -7393,7 +7393,7 @@
 	dir = 4
 	},
 /obj/effect/turf_decal/bot_white,
-/turf/open/floor/iron/dark,
+/turf/open/floor/iron/dark/smooth_half,
 /area/station/medical/paramedic)
 "cvM" = (
 /obj/structure/sign/warning/secure_area{
@@ -16468,7 +16468,7 @@
 	dir = 1
 	},
 /obj/effect/turf_decal/bot_white,
-/turf/open/floor/iron/dark,
+/turf/open/floor/iron/dark/smooth_half,
 /area/station/medical/paramedic)
 "fxB" = (
 /obj/effect/turf_decal/stripes/line,
@@ -16589,7 +16589,7 @@
 /obj/item/storage/box/bodybags,
 /obj/item/storage/box/bodybags,
 /obj/effect/turf_decal/bot_white,
-/turf/open/floor/iron/dark,
+/turf/open/floor/iron/dark/smooth_half,
 /area/station/medical/paramedic)
 "fyG" = (
 /obj/structure/cable,
@@ -21172,7 +21172,7 @@
 /obj/machinery/suit_storage_unit/medical,
 /obj/effect/turf_decal/tile/neutral/half/contrasted,
 /obj/effect/turf_decal/bot_white,
-/turf/open/floor/iron/dark,
+/turf/open/floor/iron/dark/smooth_half,
 /area/station/medical/paramedic)
 "gVi" = (
 /obj/machinery/atmospherics/pipe/smart/manifold4w/supply/hidden/layer4,
@@ -45953,6 +45953,9 @@
 	dir = 8
 	},
 /obj/machinery/duct,
+/obj/effect/turf_decal/trimline/blue/filled/corner{
+	dir = 8
+	},
 /turf/open/floor/iron/dark/smooth_large,
 /area/station/medical/paramedic)
 "pbs" = (
@@ -67785,7 +67788,7 @@
 /obj/effect/turf_decal/tile/neutral/half/contrasted{
 	dir = 8
 	},
-/turf/open/floor/iron/dark,
+/turf/open/floor/iron/dark/smooth_half,
 /area/station/medical/paramedic)
 "vUs" = (
 /obj/structure/bed,
@@ -72679,7 +72682,7 @@
 	pixel_y = 5
 	},
 /obj/structure/fireaxecabinet/jawsofrecovery/directional/south,
-/turf/open/floor/iron/dark,
+/turf/open/floor/iron/dark/smooth_half,
 /area/station/medical/paramedic)
 "xxJ" = (
 /obj/machinery/ai_slipper{
