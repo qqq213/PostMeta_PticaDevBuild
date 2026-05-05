@@ -1195,11 +1195,6 @@
 /turf/closed/wall/r_wall,
 /area/station/ai/upload/chamber)
 "aru" = (
-/obj/machinery/atmospherics/pipe/smart/manifold4w/supply/hidden/layer4,
-/obj/machinery/atmospherics/pipe/smart/manifold4w/scrubbers/hidden/layer2,
-/obj/structure/disposalpipe/segment{
-	dir = 4
-	},
 /obj/structure/cable,
 /obj/effect/turf_decal/tile/brown/half/contrasted{
 	dir = 8
@@ -5871,6 +5866,15 @@
 /obj/machinery/atmospherics/pipe/smart/manifold4w/supply/hidden/layer4,
 /turf/open/floor/plating,
 /area/station/maintenance/port/lesser)
+"ccg" = (
+/obj/effect/spawner/structure/window/reinforced,
+/obj/machinery/door/poddoor/shutters/preopen{
+	id = "qmprivacy";
+	name = "Privacy Shutters"
+	},
+/obj/structure/cable,
+/turf/open/floor/plating,
+/area/station/command/heads_quarters/qm)
 "ccr" = (
 /obj/effect/decal/cleanable/blood/old,
 /obj/effect/turf_decal/stripes/line{
@@ -8468,6 +8472,7 @@
 /obj/effect/turf_decal/tile/yellow{
 	dir = 1
 	},
+/obj/structure/disposalpipe/segment,
 /turf/open/floor/iron,
 /area/station/cargo/storage)
 "cTY" = (
@@ -20404,6 +20409,8 @@
 	name = "Quartermaster's Office"
 	},
 /obj/machinery/atmospherics/pipe/smart/manifold4w/supply/hidden/layer4,
+/obj/machinery/atmospherics/pipe/smart/manifold4w/scrubbers/hidden/layer2,
+/obj/structure/disposalpipe/segment,
 /turf/open/floor/iron/dark,
 /area/station/command/heads_quarters/qm)
 "gIo" = (
@@ -28478,12 +28485,13 @@
 /turf/open/floor/carpet/green,
 /area/station/maintenance/port/greater)
 "jfc" = (
-/obj/structure/disposalpipe/segment{
-	dir = 10
-	},
 /obj/structure/cable,
 /obj/effect/turf_decal/tile/brown{
 	dir = 8
+	},
+/obj/structure/disposalpipe/sorting/mail/flip{
+	dir = 8;
+	name = "disposals sorting disposal pipe"
 	},
 /turf/open/floor/iron,
 /area/station/cargo/storage)
@@ -34038,6 +34046,7 @@
 	dir = 10
 	},
 /obj/machinery/atmospherics/pipe/smart/manifold4w/supply/hidden/layer4,
+/obj/structure/disposalpipe/segment,
 /turf/open/floor/wood,
 /area/station/command/heads_quarters/qm)
 "kZx" = (
@@ -44197,6 +44206,15 @@
 	},
 /turf/open/floor/iron/dark,
 /area/station/service/bar)
+"ovy" = (
+/obj/machinery/atmospherics/pipe/smart/manifold4w/supply/hidden/layer4,
+/obj/machinery/atmospherics/pipe/smart/manifold4w/scrubbers/hidden/layer2,
+/obj/structure/cable,
+/obj/structure/disposalpipe/segment{
+	dir = 9
+	},
+/turf/open/floor/iron,
+/area/station/cargo/storage)
 "ovN" = (
 /obj/structure/disposalpipe/segment,
 /obj/effect/decal/cleanable/dirt,
@@ -69556,14 +69574,12 @@
 /obj/machinery/atmospherics/pipe/smart/manifold4w/supply/hidden/layer4,
 /obj/machinery/atmospherics/pipe/smart/manifold4w/scrubbers/hidden/layer2,
 /obj/effect/landmark/event_spawn,
-/obj/structure/disposalpipe/segment{
-	dir = 9
-	},
 /obj/structure/cable,
 /obj/effect/turf_decal/siding/wood{
 	dir = 8
 	},
 /obj/machinery/holopad,
+/obj/structure/disposalpipe/segment,
 /turf/open/floor/wood,
 /area/station/command/heads_quarters/qm)
 "wwG" = (
@@ -113612,7 +113628,7 @@ rrK
 rZV
 rZV
 atu
-atu
+ccg
 atu
 nfY
 hUw
@@ -114130,7 +114146,7 @@ wwC
 kZw
 gHI
 cTX
-lJD
+ovy
 eKk
 lJD
 eKk
