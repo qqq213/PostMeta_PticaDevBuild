@@ -20,7 +20,7 @@
 		return
 	remove_filter("AO")
 	if(istype(mymob) && mymob.canon_client?.prefs?.read_preference(/datum/preference/toggle/ambient_occlusion))
-		add_filter("AO", 1, outline_filter(x = 0, y = -0.1, size = 0.25, color = "#11080420", flags = OUTLINE_SQUARE))
+		add_filter("AO", 1, outline_filter(size = 0.25, color = "#11080420", flags = OUTLINE_SQUARE))
 
 #undef AMBIENT_OCCLUSION
 
