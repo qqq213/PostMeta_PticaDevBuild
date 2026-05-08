@@ -21,7 +21,7 @@
 	/// Stamina damage dealt
 	var/stamina_force = 25
 
-/obj/item/melee/tonfa/attack(mob/living/target, mob/living/user)
+/obj/item/melee/tonfa/attack(mob/living/target, mob/living/user, mob/living/martial_artist)
 	var/target_zone = user.zone_selected == target
 	var/armour_level = target.getarmor(target_zone)
 	var/shove_dir = get_dir(user.loc, target.loc)
@@ -78,15 +78,16 @@
 				target.emote("cry")
 	if(ishuman(target))
 		var/mob/living/carbon/human/H = target
+		var/list/adjectives = list("expretly", "professionally", "skillfully", "masterfully")
+		var/list/nouns = list("attack", "hit", "bash", "swing")
 		if (H.check_block(src, 0, "[user]'s [name]", MELEE_ATTACK))
 			return
-		if(target.check_block())
-			target.visible_message(span_danger("[target.name] blocks [src] and twists [user]'s arm behind [user.p_their()] back!"),
-				span_userdanger("You block the attack!"))
+		if(target.check_block(martial_artist))
+			target.visible_message(span_danger("[target.name] blocks [src] and [pick(adjectives)] twists [user]'s arm behind [user.p_their()] back!"),
+				span_userdanger("You block the [user]'s [src] [pick(nouns)] by [pick(adjectives)] twisting [user.p_their()] hand behind [user.p_their()] back!"))
 			user.Stun(7)
 			log_combat(user, target, "attempted to attack", src, "(blocked by martial arts)")
 			return
-
 		log_combat(user, target, "attacked", src)
 
 		// If the target has a lot of stamina loss, knock them down
